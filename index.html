@@ -59,7 +59,7 @@ body{font-family:'Inter',system-ui,sans-serif;font-size:14px;line-height:1.6;col
 .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
 .f-lbl{display:block;font-size:12.5px;font-weight:600;color:var(--navy);margin-bottom:6px}
 .star{color:var(--err)}
-input[type=text],input[type=date],select,textarea{width:100%;padding:11px 13px;border:1px solid var(--g3);border-radius:8px;font:14px 'Inter',sans-serif;color:var(--ink);background:var(--white);transition:border-color .15s,box-shadow .15s;-webkit-appearance:none}
+input[type=text],select,textarea{width:100%;padding:11px 13px;border:1px solid var(--g3);border-radius:8px;font:14px 'Inter',sans-serif;color:var(--ink);background:var(--white);transition:border-color .15s,box-shadow .15s;-webkit-appearance:none}
 input:hover,select:hover,textarea:hover{border-color:var(--g2)}
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,196,.11)}
 input::placeholder,textarea::placeholder{color:var(--g2)}
@@ -217,12 +217,8 @@ textarea{resize:vertical;line-height:1.55;min-height:76px;font-size:13.5px}
           <div class="e" id="a-nm-e">Please enter a name.</div>
         </div>
         <div>
-          <label class="f-lbl">Review period — from</label>
-          <input type="date" id="a-d1">
-        </div>
-        <div>
-          <label class="f-lbl">Review period — to</label>
-          <input type="date" id="a-d2">
+          <label class="f-lbl">Review period <span style="font-weight:400;color:var(--g2)">(optional)</span></label>
+          <input type="text" id="a-rp" placeholder="e.g. Aug 2026 or Jul – Aug 2026">
         </div>
       </div>
       <div style="margin-top:20px"><button class="btn btn-p" onclick="mk()">Generate link</button></div>
@@ -233,6 +229,11 @@ textarea{resize:vertical;line-height:1.55;min-height:76px;font-size:13.5px}
         <div class="out-b">
           <button class="btn btn-p btn-s" onclick="cp(this)">Copy link</button>
           <button class="btn btn-o btn-s" onclick="pv()">Preview form</button>
+        </div>
+        <div class="out-b" id="shorten-row" style="display:none;align-items:center;gap:10px;flex-wrap:wrap;border-top:1px solid var(--line);background:var(--soft)">
+          <button class="btn btn-o btn-s" id="shorten-btn" onclick="shorten()">Shorten link</button>
+          <span id="short-url" style="font-size:12.5px;color:var(--navy);word-break:break-all;font-family:monospace;"></span>
+          <button class="btn btn-p btn-s" id="short-copy" style="display:none" onclick="navigator.clipboard.writeText(document.getElementById('short-url').textContent);this.textContent='Copied';setTimeout(()=>this.textContent='Copy short link',2200)">Copy short link</button>
         </div>
         <div class="out-p">
           <div class="out-pk">What your client will read</div>
@@ -411,7 +412,7 @@ function init(){
   const p=new URLSearchParams(location.search),n=p.get('name');
   if(n){
     nm=decodeURIComponent(n).trim();
-    rp=p.get('period')?decodeURIComponent(p.get('period')):'';
+    rp=p.get('p')?decodeURIComponent(p.get('p')):(p.get('period')?decodeURIComponent(p.get('period')):'');
     openForm();
   } else openAdmin();
 }
@@ -422,26 +423,36 @@ function openAdmin(){
   loadH();
 }
 function aclr(){document.getElementById('a-nm-e').classList.remove('on');document.getElementById('a-nm').classList.remove('bad')}
-function fmtDate(v){
-  if(!v)return '';
-  const [y,m,d]=v.split('-');
-  const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  return `${+d} ${M[+m-1]} ${y}`;
-}
+
 function mk(){
   const n=document.getElementById('a-nm').value.trim();
   if(!n){document.getElementById('a-nm-e').classList.add('on');document.getElementById('a-nm').classList.add('bad');return}
-  const d1=fmtDate(document.getElementById('a-d1').value);
-  const d2=fmtDate(document.getElementById('a-d2').value);
-  let per='';
-  if(d1&&d2)per=`${d1} – ${d2}`; else if(d1)per=`From ${d1}`; else if(d2)per=`Until ${d2}`;
+  const per=document.getElementById('a-rp').value.trim();
   const q=new URLSearchParams({name:n});
-  if(per)q.set('period',per);
+  if(per)q.set('p',per);
   const u=location.origin+location.pathname+'?'+q;
   document.getElementById('ou').textContent=u;
   document.getElementById('op').textContent=`"We would appreciate your feedback on ${n}'s performance and contribution to the project."`;
   document.getElementById('out').style.display='block';
+  document.getElementById('shorten-row').style.display='flex';
+  document.getElementById('short-url').textContent='';
   saveH(n,per,u);
+}
+async function shorten(){
+  const long=document.getElementById('ou').textContent;
+  const btn=document.getElementById('shorten-btn');
+  btn.textContent='Shortening…';btn.disabled=true;
+  try{
+    const r=await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(long)}`);
+    if(!r.ok)throw new Error();
+    const short=await r.text();
+    if(!short.startsWith('http'))throw new Error();
+    document.getElementById('short-url').textContent=short;
+    document.getElementById('short-copy').style.display='inline-flex';
+  }catch{
+    document.getElementById('short-url').textContent='Could not shorten — copy the link above instead.';
+  }
+  btn.textContent='Shorten link';btn.disabled=false;
 }
 function cp(b){navigator.clipboard.writeText(document.getElementById('ou').textContent).then(()=>{b.textContent='Copied';setTimeout(()=>b.textContent='Copy link',2200)})}
 function pv(){window.open(document.getElementById('ou').textContent,'_blank')}
