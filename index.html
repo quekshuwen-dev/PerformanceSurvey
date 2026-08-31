@@ -59,7 +59,7 @@ body{font-family:'Inter',system-ui,sans-serif;font-size:14px;line-height:1.6;col
 .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
 .f-lbl{display:block;font-size:12.5px;font-weight:600;color:var(--navy);margin-bottom:6px}
 .star{color:var(--err)}
-input[type=text],select,textarea{width:100%;padding:11px 13px;border:1px solid var(--g3);border-radius:8px;font:14px 'Inter',sans-serif;color:var(--ink);background:var(--white);transition:border-color .15s,box-shadow .15s;-webkit-appearance:none}
+input[type=text],input[type=date],select,textarea{width:100%;padding:11px 13px;border:1px solid var(--g3);border-radius:8px;font:14px 'Inter',sans-serif;color:var(--ink);background:var(--white);transition:border-color .15s,box-shadow .15s;-webkit-appearance:none}
 input:hover,select:hover,textarea:hover{border-color:var(--g2)}
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,196,.11)}
 input::placeholder,textarea::placeholder{color:var(--g2)}
@@ -217,8 +217,12 @@ textarea{resize:vertical;line-height:1.55;min-height:76px;font-size:13.5px}
           <div class="e" id="a-nm-e">Please enter a name.</div>
         </div>
         <div>
-          <label class="f-lbl">Review period <span style="font-weight:400;color:var(--g2)">(optional)</span></label>
-          <input type="text" id="a-rp" placeholder="e.g. Aug 2026 or Jul – Aug 2026">
+          <label class="f-lbl">Review period — from <span style="font-weight:400;color:var(--g2)">(optional)</span></label>
+          <input type="date" id="a-d1">
+        </div>
+        <div>
+          <label class="f-lbl">Review period — to <span style="font-weight:400;color:var(--g2)">(optional)</span></label>
+          <input type="date" id="a-d2">
         </div>
       </div>
       <div style="margin-top:20px"><button class="btn btn-p" onclick="mk()">Generate link</button></div>
@@ -412,7 +416,8 @@ function init(){
   const p=new URLSearchParams(location.search),n=p.get('name');
   if(n){
     nm=decodeURIComponent(n).trim();
-    rp=p.get('p')?decodeURIComponent(p.get('p')):(p.get('period')?decodeURIComponent(p.get('period')):'');
+    const raw=p.get('p')||p.get('period')||'';
+    rp=raw?(/^\d{8}/.test(raw)?unpackDates(raw):decodeURIComponent(raw)):'';
     openForm();
   } else openAdmin();
 }
@@ -429,19 +434,52 @@ function capName(el){
   el.setSelectionRange(s,s);
 }
 
-function mk(){
-  const n=document.getElementById('a-nm').value.trim();
-  if(!n){document.getElementById('a-nm-e').classList.add('on');document.getElementById('a-nm').classList.add('bad');return}
-  const per=document.getElementById('a-rp').value.trim();
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+/* Pack yyyy-mm-dd -> yyyymmdd for a compact URL */
+function packDates(d1,d2){
+  const a=d1?d1.replace(/-/g,''):'', b=d2?d2.replace(/-/g,''):'';
+  if(a&&b)return a+'-'+b;
+  return a||b||'';
+}
+/* Unpack yyyymmdd[-yyyymmdd] -> "1 Aug 2026 - 31 Aug 2026" */
+function unpackDates(v){
+  if(!v)return '';
+  const nice=s=>{
+    if(!/^\d{8}$/.test(s))return null;
+    return `${+s.slice(6,8)} ${MON[+s.slice(4,6)-1]} ${s.slice(0,4)}`;
+  };
+  const parts=v.split('-');
+  if(parts.length===2){
+    const a=nice(parts[0]),b=nice(parts[1]);
+    if(a&&b)return a+' \u2013 '+b;
+  }
+  const one=nice(parts[0]);
+  return one||v;
+}
+/* yyyymmdd -> yyyy-mm-dd for repopulating a date input */
+function toInputDate(s){
+  return /^\d{8}$/.test(s)?`${s.slice(0,4)}-${s.slice(4,6)}-${s.slice(6,8)}`:'';
+}
+function buildLink(n,packed){
   const q=new URLSearchParams({name:n});
-  if(per)q.set('p',per);
-  const u=location.origin+location.pathname+'?'+q;
+  if(packed)q.set('p',packed);
+  return location.origin+location.pathname+'?'+q;
+}
+function showLink(n,u){
   document.getElementById('ou').textContent=u;
   document.getElementById('op').textContent=`"We would appreciate your feedback on ${n}'s performance and contribution to the project."`;
   document.getElementById('out').style.display='block';
   document.getElementById('shorten-row').style.display='flex';
   document.getElementById('short-url').textContent='';
-  saveH(n,per,u);
+  document.getElementById('short-copy').style.display='none';
+}
+function mk(){
+  const n=document.getElementById('a-nm').value.trim();
+  if(!n){document.getElementById('a-nm-e').classList.add('on');document.getElementById('a-nm').classList.add('bad');return}
+  const packed=packDates(document.getElementById('a-d1').value,document.getElementById('a-d2').value);
+  const u=buildLink(n,packed);
+  showLink(n,u);
+  saveH(n,packed,u);
 }
 async function shorten(){
   const long=document.getElementById('ou').textContent;
@@ -470,7 +508,7 @@ function loadH(){
   const a=JSON.parse(localStorage.getItem(KEY)||'[]'),h=document.getElementById('hist');
   if(!a.length){h.style.display='none';return}
   h.style.display='block';
-  document.getElementById('hl').innerHTML=a.map((x,i)=>`<div class="hrow"><div><div class="hrow-n">${esc(x.n)}</div><div class="hrow-m">${x.p?esc(x.p)+' · ':''}Created ${x.d}</div></div><div class="hrow-b"><button class="btn btn-o btn-s" onclick="openEdit(${i})">Edit</button><button class="btn btn-o btn-s" onclick="navigator.clipboard.writeText('${x.u}');this.textContent='Copied';setTimeout(()=>this.textContent='Copy',2200)">Copy</button><button class="btn btn-o btn-s" onclick="window.open('${x.u}','_blank')">Open</button></div></div>`).join('');
+  document.getElementById('hl').innerHTML=a.map((x,i)=>`<div class="hrow"><div><div class="hrow-n">${esc(x.n)}</div><div class="hrow-m">${x.p?esc(unpackDates(x.p))+' · ':''}Created ${x.d}</div></div><div class="hrow-b"><button class="btn btn-o btn-s" onclick="openEdit(${i})">Edit</button><button class="btn btn-o btn-s" onclick="navigator.clipboard.writeText('${x.u}');this.textContent='Copied';setTimeout(()=>this.textContent='Copy',2200)">Copy</button><button class="btn btn-o btn-s" onclick="window.open('${x.u}','_blank')">Open</button></div></div>`).join('');
 }
 
 /* ═══ FORM ═══ */
@@ -606,30 +644,39 @@ init();
 let editIdx=-1;
 function openEdit(i){
   const a=JSON.parse(localStorage.getItem(KEY)||'[]');
+  if(!a[i])return;
   editIdx=i;
-  document.getElementById('edit-who').textContent=a[i].n;
-  document.getElementById('edit-rp').value=a[i].p||'';
-  const m=document.getElementById('edit-modal');
-  m.style.display='flex';
-  setTimeout(()=>document.getElementById('edit-rp').focus(),50);
+  document.getElementById('edit-nm').value=a[i].n||'';
+  document.getElementById('edit-nm-e').classList.remove('on');
+  document.getElementById('edit-nm').classList.remove('bad');
+  const parts=(a[i].p||'').split('-');
+  document.getElementById('edit-d1').value=toInputDate(parts[0]||'');
+  document.getElementById('edit-d2').value=toInputDate(parts[1]||'');
+  document.getElementById('edit-modal').style.display='flex';
+  setTimeout(()=>document.getElementById('edit-nm').focus(),50);
 }
 function closeEdit(){document.getElementById('edit-modal').style.display='none';editIdx=-1;}
 function saveEdit(){
   if(editIdx<0)return;
+  const n=document.getElementById('edit-nm').value.trim();
+  if(!n){
+    document.getElementById('edit-nm-e').classList.add('on');
+    document.getElementById('edit-nm').classList.add('bad');
+    return;
+  }
   const a=JSON.parse(localStorage.getItem(KEY)||'[]');
-  const per=document.getElementById('edit-rp').value.trim();
-  const n=a[editIdx].n;
-  const q=new URLSearchParams({name:n});if(per)q.set('p',per);
-  const u=location.origin+location.pathname+'?'+q;
-  a[editIdx].p=per;a[editIdx].u=u;a[editIdx].d=new Date().toLocaleDateString('en-SG',{day:'numeric',month:'short',year:'numeric'});
+  const packed=packDates(document.getElementById('edit-d1').value,document.getElementById('edit-d2').value);
+  const u=buildLink(n,packed);
+  a[editIdx]={n,p:packed,u,d:new Date().toLocaleDateString('en-SG',{day:'numeric',month:'short',year:'numeric'})};
+  localStorage.setItem(KEY,JSON.stringify(a));
+  closeEdit();loadH();showLink(n,u);
+}
+function delEntry(){
+  if(editIdx<0)return;
+  const a=JSON.parse(localStorage.getItem(KEY)||'[]');
+  a.splice(editIdx,1);
   localStorage.setItem(KEY,JSON.stringify(a));
   closeEdit();loadH();
-  document.getElementById('ou').textContent=u;
-  document.getElementById('out').style.display='block';
-  document.getElementById('shorten-row').style.display='flex';
-  document.getElementById('short-url').textContent='';
-  document.getElementById('short-copy').style.display='none';
-  document.getElementById('op').textContent=`"We would appreciate your feedback on ${n}'s performance and contribution to the project."`;
 }
 document.getElementById('edit-modal').addEventListener('click',function(e){if(e.target===this)closeEdit();});
 
@@ -637,12 +684,27 @@ document.getElementById('edit-modal').addEventListener('click',function(e){if(e.
 
 <!-- Edit modal -->
 <div id="edit-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;align-items:center;justify-content:center;padding:1rem">
-  <div style="background:#fff;border-radius:14px;padding:clamp(1.25rem,4vw,2rem);max-width:440px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.18)">
-    <div style="font-size:16px;font-weight:700;color:var(--navy);margin-bottom:4px">Edit review period</div>
-    <div style="font-size:13.5px;color:var(--g1);margin-bottom:1.25rem">Updating the period generates a new link for <strong id="edit-who"></strong>.</div>
-    <label class="f-lbl">Review period</label>
-    <input type="text" id="edit-rp" placeholder="e.g. Aug 2026 or Jul – Aug 2026" style="margin-bottom:1.25rem">
-    <div style="display:flex;gap:10px;justify-content:flex-end">
+  <div style="background:#fff;border-radius:14px;padding:clamp(1.25rem,4vw,2rem);max-width:460px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.18);max-height:90vh;overflow:auto">
+    <div style="font-size:17px;font-weight:700;color:var(--navy);margin-bottom:4px">Edit details</div>
+    <div style="font-size:13.5px;color:var(--g1);margin-bottom:1.5rem">Changes will regenerate the feedback link.</div>
+
+    <label class="f-lbl">Team member name <span class="star">*</span></label>
+    <input type="text" id="edit-nm" placeholder="e.g. John Tan" oninput="capName(this);document.getElementById('edit-nm-e').classList.remove('on');this.classList.remove('bad')" style="margin-bottom:4px">
+    <div class="e" id="edit-nm-e" style="margin-bottom:1rem">Please enter a name.</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.5rem">
+      <div>
+        <label class="f-lbl">Period — from</label>
+        <input type="date" id="edit-d1">
+      </div>
+      <div>
+        <label class="f-lbl">Period — to</label>
+        <input type="date" id="edit-d2">
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap">
+      <button class="btn btn-o btn-s" onclick="delEntry()" style="margin-right:auto;color:var(--stop);border-color:var(--stop-bd)">Delete</button>
       <button class="btn btn-o btn-s" onclick="closeEdit()">Cancel</button>
       <button class="btn btn-p btn-s" onclick="saveEdit()">Update link</button>
     </div>
