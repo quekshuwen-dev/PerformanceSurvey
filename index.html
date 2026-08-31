@@ -2,821 +2,778 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Performance Review — Ufinity</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Performance Review Feedback — Ufinity</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --blue:    #2563EB;
-  --blue-lt: #EFF6FF;
-  --blue-dk: #1D4ED8;
-  --text:    #0F172A;
-  --text-2:  #475569;
-  --text-3:  #94A3B8;
-  --border:  #E2E8F0;
-  --bg:      #FFFFFF;
-  --bg-alt:  #F8FAFC;
-  --green:   #059669;
-  --green-lt:#ECFDF5;
-  --green-bd:#6EE7B7;
-  --warn:    #B45309;
-  --warn-lt: #FFFBEB;
-  --warn-bd: #FCD34D;
-  --red:     #DC2626;
-  --red-lt:  #FEF2F2;
-  --red-bd:  #FCA5A5;
-  --slate:   #64748B;
-  --err:     #DC2626;
+  --navy:#12276B;
+  --blue:#1668DC;
+  --blue-dk:#1150AE;
+  --blue-soft:#EEF4FE;
+  --cyan:#29ABE2;
+  --ink:#111827;
+  --gray-1:#4B5563;
+  --gray-2:#9CA3AF;
+  --gray-3:#D1D5DB;
+  --line:#E8EBF0;
+  --line-2:#F1F3F7;
+  --white:#fff;
+  --off:#FAFBFD;
+  --ok:#0F7B4F;--ok-bg:#EDFBF3;--ok-bd:#8ADCB4;
+  --warn:#A15C07;--warn-bg:#FFF9EC;--warn-bd:#F5CE7A;
+  --stop:#B4241F;--stop-bg:#FEF1F0;--stop-bd:#F3A9A5;
+  --err:#C7332B;
 }
-html{scroll-behavior:smooth;}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
 body{
-  font-family:'Inter',system-ui,sans-serif;
-  font-size:15px;line-height:1.6;
-  background:var(--bg);color:var(--text);
-  min-height:100vh;
+  font-family:'Inter',system-ui,-apple-system,sans-serif;
+  font-size:15px;line-height:1.65;color:var(--ink);
+  background:var(--white);min-height:100vh;
   -webkit-font-smoothing:antialiased;
 }
 
-/* ── Topbar ─────────────────────────────────── */
-.topbar{
-  height:52px;
-  border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 clamp(1rem,4vw,2rem);
-  background:var(--bg);
-  position:sticky;top:0;z-index:10;
+/* ══ Masthead ══════════════════════════════════ */
+.masthead{
+  border-bottom:1px solid var(--line);
+  background:var(--white);
+  position:sticky;top:0;z-index:20;
 }
-.logo{font-size:13px;font-weight:700;letter-spacing:1.8px;color:var(--text);}
-.topbar-right{display:flex;align-items:center;gap:16px;}
-.progress-label{font-size:12px;color:var(--text-3);font-weight:500;}
-.progress-ring{width:28px;height:28px;flex-shrink:0;}
-.progress-ring-bg{fill:none;stroke:#E2E8F0;stroke-width:3;}
-.progress-ring-fill{fill:none;stroke:var(--blue);stroke-width:3;stroke-linecap:round;stroke-dasharray:75.4;stroke-dashoffset:75.4;transition:stroke-dashoffset .4s ease;transform:rotate(-90deg);transform-origin:50% 50%;}
+.masthead-in{
+  max-width:640px;margin:0 auto;
+  height:64px;padding:0 clamp(1.25rem,5vw,2rem);
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+}
+.brand{
+  font-family:'Nunito',sans-serif;font-weight:800;
+  font-size:23px;letter-spacing:-0.6px;
+  color:var(--blue);line-height:1;
+  display:flex;align-items:center;
+}
+.brand .cy{color:var(--cyan);}
+.mast-meta{display:flex;align-items:center;gap:12px;}
+.mast-count{font-size:12.5px;color:var(--gray-2);font-weight:500;white-space:nowrap;}
+.ring{width:30px;height:30px;flex-shrink:0;}
+.ring-bg{fill:none;stroke:var(--line);stroke-width:3}
+.ring-fg{
+  fill:none;stroke:var(--blue);stroke-width:3;stroke-linecap:round;
+  stroke-dasharray:81.7;stroke-dashoffset:81.7;
+  transition:stroke-dashoffset .45s cubic-bezier(.4,0,.2,1);
+  transform:rotate(-90deg);transform-origin:50% 50%;
+}
 
-/* ── Page layout ────────────────────────────── */
-.page{max-width:600px;margin:0 auto;padding:clamp(1.5rem,4vw,2.5rem) clamp(1rem,4vw,1.5rem) 4rem;}
+/* ══ Page ══════════════════════════════════════ */
+.page{
+  max-width:640px;margin:0 auto;
+  padding:clamp(2.5rem,7vw,4rem) clamp(1.25rem,5vw,2rem) 6rem;
+}
 
-/* ── Admin ──────────────────────────────────── */
-.admin-head{margin-bottom:2rem;}
-.admin-head h1{font-size:clamp(20px,4vw,26px);font-weight:800;letter-spacing:-0.5px;margin-bottom:6px;}
-.admin-head p{font-size:14px;color:var(--text-2);line-height:1.6;}
+/* ══ Hero ══════════════════════════════════════ */
+.hero{margin-bottom:clamp(2.5rem,6vw,3.5rem);}
+.hero-eyebrow{
+  display:inline-block;
+  font-size:11.5px;font-weight:700;
+  letter-spacing:1px;text-transform:uppercase;
+  color:var(--blue);background:var(--blue-soft);
+  padding:6px 12px;border-radius:6px;margin-bottom:1.25rem;
+}
+.hero-name{
+  font-size:clamp(32px,8vw,46px);
+  font-weight:800;letter-spacing:-1.4px;
+  line-height:1.08;color:var(--navy);
+  margin-bottom:1.25rem;
+}
+.hero-body{
+  font-size:15.5px;color:var(--gray-1);
+  line-height:1.75;max-width:31em;
+}
+.hero-body strong{color:var(--ink);font-weight:600;}
+.hero-meta{
+  display:flex;gap:20px;flex-wrap:wrap;
+  margin-top:1.75rem;padding-top:1.5rem;
+  border-top:1px solid var(--line);
+}
+.hero-meta-item{display:flex;flex-direction:column;gap:2px;}
+.hero-meta-k{font-size:11.5px;font-weight:600;color:var(--gray-2);letter-spacing:.3px;}
+.hero-meta-v{font-size:13.5px;font-weight:600;color:var(--ink);}
 
-.card{background:var(--bg);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1rem;}
-.card-inner{padding:clamp(1rem,3vw,1.5rem);}
-.card-foot{padding:0 clamp(1rem,3vw,1.5rem) clamp(1rem,3vw,1.5rem);display:flex;gap:8px;flex-wrap:wrap;}
+/* ══ Section ═══════════════════════════════════ */
+.sec{margin-top:clamp(3rem,8vw,4.5rem);}
+.sec:first-of-type{margin-top:0;}
+.sec-head{margin-bottom:clamp(1.75rem,4vw,2.25rem);}
+.sec-kicker{
+  font-size:11.5px;font-weight:700;letter-spacing:1px;
+  text-transform:uppercase;color:var(--cyan);margin-bottom:6px;
+}
+.sec-title{
+  font-size:clamp(19px,4vw,22px);font-weight:700;
+  letter-spacing:-.4px;color:var(--navy);
+}
+.sec-desc{font-size:14px;color:var(--gray-1);margin-top:6px;line-height:1.6;}
 
-.fld{margin-bottom:1.25rem;}
+/* ══ Field ═════════════════════════════════════ */
+.fld{margin-bottom:clamp(1.75rem,4vw,2.25rem);}
 .fld:last-child{margin-bottom:0;}
-.fld-label{display:block;font-size:13px;font-weight:600;margin-bottom:3px;}
-.fld-hint{font-size:12.5px;color:var(--text-2);margin-bottom:8px;line-height:1.5;}
+.fld-q{
+  font-size:16px;font-weight:600;color:var(--ink);
+  line-height:1.45;margin-bottom:5px;
+}
+.fld-help{font-size:13.5px;color:var(--gray-1);line-height:1.6;margin-bottom:14px;}
+.opt-tag{font-size:13px;font-weight:400;color:var(--gray-2);}
+.star{color:var(--err);font-weight:500;margin-left:1px;}
 
 input[type=text],select,textarea{
-  width:100%;
-  padding:10px 14px;
-  border:1.5px solid var(--border);
-  border-radius:8px;
-  font:15px 'Inter',sans-serif;
-  color:var(--text);background:var(--bg);
-  transition:border-color .15s,box-shadow .15s;
+  width:100%;padding:12px 15px;
+  border:1.5px solid var(--gray-3);border-radius:10px;
+  font:15px 'Inter',sans-serif;color:var(--ink);
+  background:var(--white);
+  transition:border-color .16s,box-shadow .16s;
   -webkit-appearance:none;
 }
+input:hover,select:hover,textarea:hover{border-color:var(--gray-2);}
 input:focus,select:focus,textarea:focus{
-  outline:none;
-  border-color:var(--blue);
-  box-shadow:0 0 0 3px rgba(37,99,235,.1);
+  outline:none;border-color:var(--blue);
+  box-shadow:0 0 0 4px rgba(22,104,220,.1);
 }
-input::placeholder,textarea::placeholder{color:var(--text-3);}
+input::placeholder,textarea::placeholder{color:var(--gray-2);}
 select{
-  appearance:none;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2394A3B8' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right 14px center;
-  padding-right:36px;cursor:pointer;
+  appearance:none;cursor:pointer;padding-right:40px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%239CA3AF' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 15px center;
 }
-textarea{resize:vertical;line-height:1.6;}
+textarea{resize:vertical;line-height:1.6;min-height:96px;}
+.bad{border-color:var(--err)!important;}
+.msg-err{font-size:13px;color:var(--err);margin-top:8px;display:none;font-weight:500;}
+.msg-err.on{display:block;}
 
-.err-text{font-size:12px;color:var(--err);margin-top:5px;display:none;}
-.err-text.on{display:block;}
-.inp-err{border-color:var(--err)!important;}
-
-/* Buttons */
-.btn{
-  display:inline-flex;align-items:center;justify-content:center;
-  gap:6px;padding:10px 20px;border-radius:8px;
-  font:600 13.5px 'Inter',sans-serif;
-  cursor:pointer;transition:all .15s;border:none;
-  text-decoration:none;white-space:nowrap;
+/* ══ Scale ═════════════════════════════════════ */
+.legend{
+  background:var(--off);border:1px solid var(--line);
+  border-radius:12px;padding:16px 18px;
+  margin-bottom:clamp(1.75rem,4vw,2.25rem);
 }
-.btn-blue{background:var(--blue);color:#fff;}
-.btn-blue:hover{background:var(--blue-dk);}
-.btn-outline{background:transparent;color:var(--text-2);border:1.5px solid var(--border);}
-.btn-outline:hover{border-color:var(--text-3);color:var(--text);}
-.btn-sm{padding:7px 14px;font-size:12.5px;border-radius:6px;}
-
-/* Link result */
-.link-result{
-  display:none;margin-top:1rem;
-  border:1.5px solid var(--blue);border-radius:10px;
-  overflow:hidden;
-}
-.link-result-head{
-  background:var(--blue);
-  padding:10px 16px;
-  font-size:11.5px;font-weight:600;color:#fff;letter-spacing:0.3px;
-}
-.link-result-url{
-  padding:12px 16px;
-  font:13px/1.6 'SF Mono','Fira Code',monospace;
-  color:var(--text);word-break:break-all;
-  background:#FAFBFF;border-bottom:1px solid var(--border);
-}
-.link-result-actions{padding:10px 16px;display:flex;gap:8px;flex-wrap:wrap;background:var(--bg);}
-.link-preview-wrap{padding:12px 16px;background:var(--bg-alt);border-top:1px solid var(--border);}
-.link-preview-label{font-size:11px;font-weight:600;color:var(--text-3);letter-spacing:0.5px;margin-bottom:4px;}
-.link-preview-text{font-size:13px;color:var(--text-2);line-height:1.6;font-style:italic;}
-
-/* Recent list */
-.recent-hd{font-size:13px;font-weight:600;color:var(--text);padding:0 clamp(1rem,3vw,1.5rem);margin-bottom:2px;}
-.recent-row{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:12px clamp(1rem,3vw,1.5rem);border-bottom:1px solid var(--border);gap:12px;
-}
-.recent-row:last-child{border-bottom:none;}
-.recent-name{font-size:14px;font-weight:600;}
-.recent-sub{font-size:12px;color:var(--text-3);margin-top:1px;}
-.recent-btns{display:flex;gap:6px;flex-shrink:0;}
-
-/* ── Survey ─────────────────────────────────── */
-
-/* Subject hero */
-.subject-hero{margin-bottom:2rem;padding-bottom:2rem;border-bottom:1.5px solid var(--border);}
-.subject-eyebrow{
-  font-size:11px;font-weight:600;
-  color:var(--blue);
-  letter-spacing:0.8px;
-  text-transform:uppercase;
-  margin-bottom:10px;
-}
-.subject-name{
-  font-size:clamp(28px,6vw,38px);
-  font-weight:800;
-  letter-spacing:-1px;
-  line-height:1.1;
-  color:var(--text);
-  margin-bottom:14px;
-}
-.subject-notice{
-  font-size:14px;
-  color:var(--text-2);
-  line-height:1.7;
-  max-width:480px;
-}
-.subject-notice strong{color:var(--text);font-weight:600;}
-
-/* Section header */
-.sec-head{
-  display:flex;align-items:center;gap:10px;
-  margin-bottom:1rem;
-  padding-bottom:.75rem;
-  border-bottom:1px solid var(--border);
-}
-.sec-num{
-  font-size:11px;font-weight:700;color:var(--blue);
-  background:var(--blue-lt);border-radius:4px;
-  padding:2px 8px;letter-spacing:.3px;
-}
-.sec-title{font-size:15px;font-weight:700;color:var(--text);}
-
-/* Question block */
-.q-wrap{margin-bottom:clamp(1.5rem,4vw,2rem);}
-.q-wrap:last-of-type{margin-bottom:0;}
-.q-label{
-  font-size:15px;font-weight:600;color:var(--text);
-  margin-bottom:4px;line-height:1.4;
-}
-.q-hint{font-size:13px;color:var(--text-2);margin-bottom:12px;line-height:1.5;}
-.q-err{font-size:12px;color:var(--err);margin-top:6px;display:none;}
-.q-err.on{display:block;}
-.req{color:var(--err);margin-left:2px;}
-
-/* Rating scale */
-.scale-legend{
-  font-size:12px;color:var(--text-3);margin-bottom:12px;line-height:1.8;
-  padding:10px 14px;background:var(--bg-alt);border-radius:8px;
-  border:1px solid var(--border);
-}
-.scale-legend strong{color:var(--text-2);font-weight:600;}
-.scale-legend .note{color:var(--warn);font-weight:500;display:block;margin-top:2px;font-size:11.5px;}
-
-.scale-btns{
+.legend-grid{
   display:grid;
-  grid-template-columns:repeat(5,1fr);
-  gap:6px;margin-bottom:8px;
+  grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:8px 18px;margin-bottom:12px;
 }
-.r-btn{
-  padding:clamp(8px,2vw,12px) 4px;
-  border:1.5px solid var(--border);
-  border-radius:8px;background:var(--bg);
-  font:700 clamp(14px,3vw,16px) 'Inter',sans-serif;
-  color:var(--text-3);cursor:pointer;
-  transition:all .12s;text-align:center;
+.legend-item{display:flex;align-items:baseline;gap:7px;font-size:13px;}
+.legend-n{
+  font-weight:700;color:var(--blue);
+  min-width:18px;font-size:13.5px;
 }
-.r-btn:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-lt);}
-.r-btn.on{background:var(--blue);border-color:var(--blue);color:#fff;}
-.r-btn.on-low{background:#B45309;border-color:#B45309;color:#fff;}
+.legend-t{color:var(--gray-1);}
+.legend-rule{
+  font-size:12.5px;color:var(--warn);font-weight:500;
+  padding-top:12px;border-top:1px solid var(--line);
+  display:flex;gap:7px;align-items:flex-start;line-height:1.5;
+}
 
-.scale-foot{
+.rate{margin-top:2px;}
+.rate-btns{display:flex;gap:9px;margin-bottom:10px;flex-wrap:wrap;}
+.rb{
+  width:58px;height:58px;flex-shrink:0;
+  border:1.5px solid var(--gray-3);border-radius:12px;
+  background:var(--white);
+  font:700 18px 'Inter',sans-serif;color:var(--gray-2);
+  cursor:pointer;transition:all .14s;
+  display:flex;align-items:center;justify-content:center;
+}
+.rb:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-soft);}
+.rb.on{background:var(--blue);border-color:var(--blue);color:#fff;}
+.rb.on-low{background:var(--warn);border-color:var(--warn);color:#fff;}
+.na{
+  height:58px;padding:0 20px;flex-shrink:0;
+  border:1.5px solid var(--gray-3);border-radius:12px;
+  background:var(--white);
+  font:600 13px 'Inter',sans-serif;color:var(--gray-2);
+  cursor:pointer;transition:all .14s;
+  display:flex;align-items:center;
+}
+.na:hover{border-color:var(--gray-2);color:var(--gray-1);}
+.na.on{background:#F3F4F6;border-color:var(--gray-2);color:var(--gray-1);}
+.rate-scale{
   display:flex;justify-content:space-between;
-  font-size:11px;color:var(--text-3);
-  padding:0 2px;margin-bottom:10px;
+  font-size:12px;color:var(--gray-2);
+  max-width:340px;margin-bottom:12px;
 }
-.na-btn{
-  border:1.5px solid var(--border);border-radius:20px;
-  background:transparent;
-  font:500 12px 'Inter',sans-serif;color:var(--text-3);
-  padding:5px 14px;cursor:pointer;transition:all .12s;
+.rate-out{
+  font-size:14px;font-weight:600;color:var(--blue);
+  min-height:22px;
 }
-.na-btn:hover{border-color:var(--slate);color:var(--text);}
-.na-btn.on{border-color:var(--slate);background:#F1F5F9;color:var(--text);font-weight:600;}
-.r-feedback{
-  font-size:13px;font-weight:600;min-height:20px;
-  margin-top:8px;color:var(--blue);
-}
-.r-feedback.low{color:#B45309;}
+.rate-out.low{color:var(--warn);}
 
 /* Comment sub-field */
-.sub-field{margin-top:10px;}
-.sub-field-label{
-  font-size:12.5px;font-weight:500;color:var(--text-3);
-  margin-bottom:6px;
+.cmt{
+  margin-top:14px;padding-top:16px;
+  border-top:1px dashed var(--line);
 }
-.sub-field-label .required-tag{
-  color:var(--warn);font-weight:600;display:none;
+.cmt-lbl{
+  font-size:13.5px;font-weight:500;
+  color:var(--gray-1);margin-bottom:8px;
 }
-.sub-field-label .required-tag.on{display:inline;}
-.sub-textarea{
-  font-size:13px;width:100%;
-  padding:9px 12px;
-  border:1.5px solid var(--border);border-radius:8px;
-  font-family:'Inter',sans-serif;
-  resize:vertical;min-height:64px;
-  color:var(--text);background:var(--bg);
-  transition:border-color .15s;line-height:1.5;
+.cmt-lbl .must{color:var(--warn);font-weight:600;display:none;}
+.cmt-lbl .must.on{display:inline;}
+.cmt-box{
+  min-height:80px;font-size:14px;padding:11px 14px;
+  border-radius:10px;
 }
-.sub-textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.08);}
-.sub-textarea.req-border{border-color:#FCD34D;background:#FFFBEB;}
-.sub-err{font-size:12px;color:var(--err);margin-top:4px;display:none;}
-.sub-err.on{display:block;}
+.cmt-box.needed{border-color:var(--warn-bd);background:var(--warn-bg);}
+.cmt-err{font-size:13px;color:var(--err);margin-top:7px;display:none;font-weight:500;}
+.cmt-err.on{display:block;}
 
-/* Divider */
-.divider{height:1px;background:var(--border);margin:clamp(1.5rem,4vw,2rem) 0;}
-
-/* Choice list */
-.choice-list{display:flex;flex-direction:column;gap:8px;}
-.choice-item{
-  display:flex;align-items:flex-start;gap:12px;
-  padding:14px 16px;
-  border:1.5px solid var(--border);border-radius:10px;
-  cursor:pointer;transition:all .15s;
+/* ══ Choice ════════════════════════════════════ */
+.choices{display:flex;flex-direction:column;gap:10px;}
+.ch{
+  display:flex;align-items:flex-start;gap:14px;
+  padding:16px 18px;
+  border:1.5px solid var(--gray-3);border-radius:12px;
+  cursor:pointer;transition:all .16s;
   -webkit-tap-highlight-color:transparent;
 }
-.choice-item:hover{border-color:var(--text-3);}
-.choice-radio{
-  width:18px;height:18px;min-width:18px;
-  border:2px solid var(--border);border-radius:50%;
-  margin-top:2px;
+.ch:hover{border-color:var(--gray-2);background:var(--off);}
+.ch-dot{
+  width:20px;height:20px;min-width:20px;margin-top:1px;
+  border:2px solid var(--gray-3);border-radius:50%;
   display:flex;align-items:center;justify-content:center;
-  transition:all .15s;
+  transition:all .16s;
 }
-.radio-fill{width:8px;height:8px;border-radius:50%;background:#fff;display:none;}
-.choice-item[class*=s-] .radio-fill{display:block;}
-.choice-title{font-size:14px;font-weight:600;line-height:1.4;margin-bottom:2px;}
-.choice-sub{font-size:12.5px;color:var(--text-2);line-height:1.4;}
+.ch-in{width:8px;height:8px;border-radius:50%;background:#fff;display:none;}
+.ch[class*=is-] .ch-in{display:block;}
+.ch-t{font-size:15px;font-weight:600;line-height:1.4;margin-bottom:3px;}
+.ch-s{font-size:13.5px;color:var(--gray-1);line-height:1.5;}
+.ch-flag{font-size:12.5px;font-weight:500;opacity:.75;}
 
-.choice-item.s-yes{border-color:var(--green-bd);background:var(--green-lt);}
-.choice-item.s-yes .choice-radio{border-color:var(--green);background:var(--green);}
-.choice-item.s-yes .choice-title{color:var(--green);}
+.ch.is-ok{border-color:var(--ok-bd);background:var(--ok-bg);}
+.ch.is-ok .ch-dot{border-color:var(--ok);background:var(--ok);}
+.ch.is-ok .ch-t{color:var(--ok);}
+.ch.is-warn{border-color:var(--warn-bd);background:var(--warn-bg);}
+.ch.is-warn .ch-dot{border-color:var(--warn);background:var(--warn);}
+.ch.is-warn .ch-t{color:var(--warn);}
+.ch.is-stop{border-color:var(--stop-bd);background:var(--stop-bg);}
+.ch.is-stop .ch-dot{border-color:var(--stop);background:var(--stop);}
+.ch.is-stop .ch-t{color:var(--stop);}
+.ch.is-na{border-color:var(--gray-3);background:var(--off);}
+.ch.is-na .ch-dot{border-color:var(--gray-1);background:var(--gray-1);}
+.ch.is-na .ch-t{color:var(--gray-1);}
+.ch-cmt{display:none;margin-top:16px;padding-top:16px;border-top:1px dashed var(--line);}
 
-.choice-item.s-partial{border-color:var(--warn-bd);background:var(--warn-lt);}
-.choice-item.s-partial .choice-radio{border-color:var(--warn);background:var(--warn);}
-.choice-item.s-partial .choice-title{color:var(--warn);}
-
-.choice-item.s-notyet{border-color:var(--red-bd);background:var(--red-lt);}
-.choice-item.s-notyet .choice-radio{border-color:var(--red);background:var(--red);}
-.choice-item.s-notyet .choice-title{color:var(--red);}
-
-.choice-item.s-unable{border-color:#CBD5E1;background:#F8FAFC;}
-.choice-item.s-unable .choice-radio{border-color:var(--slate);background:var(--slate);}
-.choice-item.s-unable .choice-title{color:var(--slate);}
-
-.cont-cmt{display:none;margin-top:12px;}
-
-/* Submit */
-.submit-wrap{margin-top:clamp(1.5rem,4vw,2rem);}
-.submit-note{
-  font-size:12.5px;color:var(--text-3);
-  line-height:1.6;margin-bottom:1rem;
+/* ══ Submit ════════════════════════════════════ */
+.send{
+  margin-top:clamp(3rem,8vw,4rem);
+  padding-top:clamp(2rem,5vw,2.5rem);
+  border-top:1px solid var(--line);
 }
-.submit-btn{
-  width:100%;padding:14px;
+.send-note{font-size:13px;color:var(--gray-2);line-height:1.65;margin-bottom:1.5rem;}
+.send-btn{
+  width:100%;padding:16px;
   background:var(--blue);color:#fff;border:none;
-  border-radius:10px;
-  font:600 15px 'Inter',sans-serif;
-  cursor:pointer;transition:background .15s;
-  letter-spacing:.1px;
+  border-radius:12px;
+  font:600 16px 'Inter',sans-serif;
+  cursor:pointer;transition:background .16s,transform .1s;
 }
-.submit-btn:hover{background:var(--blue-dk);}
-.submit-btn:disabled{opacity:.5;cursor:not-allowed;}
-.submit-err{
-  display:none;margin-top:10px;padding:10px 14px;
-  background:var(--red-lt);border:1px solid var(--red-bd);
-  border-radius:8px;font-size:13px;color:var(--red);
+.send-btn:hover{background:var(--blue-dk);}
+.send-btn:active{transform:scale(.99);}
+.send-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.send-err{
+  display:none;margin-top:14px;padding:14px 16px;
+  background:var(--stop-bg);border:1px solid var(--stop-bd);
+  border-radius:10px;font-size:14px;color:var(--stop);
 }
-.submit-err.on{display:block;}
+.send-err.on{display:block;}
 
-/* Thank you */
-.ty-page{
-  max-width:480px;margin:4rem auto;
-  padding:0 clamp(1rem,4vw,1.5rem);
-  text-align:center;
+/* ══ Admin ═════════════════════════════════════ */
+.ad-h{margin-bottom:clamp(2rem,5vw,2.75rem);}
+.ad-h h1{font-size:clamp(26px,6vw,34px);font-weight:800;letter-spacing:-1px;color:var(--navy);margin-bottom:10px;}
+.ad-h p{font-size:15px;color:var(--gray-1);line-height:1.7;max-width:34em;}
+.out{
+  display:none;margin-top:clamp(2rem,5vw,2.5rem);
+  border:1.5px solid var(--blue);border-radius:14px;overflow:hidden;
 }
-.ty-icon{
-  width:56px;height:56px;
-  background:var(--blue-lt);border-radius:50%;
+.out-top{background:var(--blue);color:#fff;padding:13px 18px;font-size:13px;font-weight:600;}
+.out-url{
+  padding:16px 18px;font:13px/1.7 'SF Mono',Menlo,monospace;
+  color:var(--navy);word-break:break-all;background:var(--blue-soft);
+}
+.out-btns{padding:14px 18px;display:flex;gap:10px;flex-wrap:wrap;border-top:1px solid var(--line);}
+.out-prev{padding:16px 18px;background:var(--off);border-top:1px solid var(--line);}
+.out-prev-k{font-size:11.5px;font-weight:700;letter-spacing:.6px;color:var(--gray-2);margin-bottom:6px;text-transform:uppercase;}
+.out-prev-v{font-size:14px;color:var(--gray-1);line-height:1.65;font-style:italic;}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  padding:12px 22px;border-radius:10px;border:none;
+  font:600 14px 'Inter',sans-serif;cursor:pointer;transition:all .16s;
+}
+.btn-p{background:var(--blue);color:#fff;}
+.btn-p:hover{background:var(--blue-dk);}
+.btn-o{background:var(--white);color:var(--gray-1);border:1.5px solid var(--gray-3);}
+.btn-o:hover{border-color:var(--gray-2);color:var(--ink);}
+.btn-s{padding:9px 16px;font-size:13px;border-radius:8px;}
+.hist{margin-top:clamp(2.5rem,6vw,3.5rem);}
+.hist-h{font-size:13px;font-weight:700;letter-spacing:.4px;color:var(--gray-2);text-transform:uppercase;margin-bottom:14px;}
+.hrow{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  padding:16px 0;border-bottom:1px solid var(--line);
+}
+.hrow:last-child{border-bottom:none;}
+.hrow-n{font-size:15px;font-weight:600;}
+.hrow-m{font-size:13px;color:var(--gray-2);margin-top:1px;}
+.hrow-b{display:flex;gap:8px;flex-shrink:0;}
+
+/* ══ Done ══════════════════════════════════════ */
+.done{
+  max-width:460px;margin:clamp(4rem,12vw,7rem) auto;
+  padding:0 clamp(1.25rem,5vw,2rem);text-align:center;
+}
+.done-tick{
+  width:64px;height:64px;margin:0 auto 1.75rem;
+  background:var(--blue-soft);border-radius:50%;
   display:flex;align-items:center;justify-content:center;
-  margin:0 auto 1.25rem;
-  font-size:22px;color:var(--blue);
+  font-size:26px;color:var(--blue);
 }
-.ty-page h2{
-  font-size:clamp(20px,4vw,24px);font-weight:800;
-  letter-spacing:-0.5px;margin-bottom:10px;color:var(--text);
-}
-.ty-page p{font-size:14px;color:var(--text-2);line-height:1.7;}
+.done h2{font-size:clamp(23px,5vw,28px);font-weight:800;letter-spacing:-.7px;color:var(--navy);margin-bottom:14px;}
+.done p{font-size:15px;color:var(--gray-1);line-height:1.75;}
 
-/* Responsive helpers */
-@media(max-width:480px){
-  .scale-btns{gap:4px;}
-  .r-btn{border-radius:6px;}
-  .choice-item{padding:12px 14px;}
-  .recent-btns{flex-direction:column;}
+@media(max-width:420px){
+  .rb{width:52px;height:52px;font-size:17px;}
+  .na{height:52px;padding:0 16px;font-size:12.5px;width:100%;justify-content:center;margin-top:2px;}
+  .rate-btns{gap:7px;}
 }
 </style>
 </head>
 <body>
 
-<!-- ── Topbar ──────────────────────────────────────── -->
-<div class="topbar">
-  <span class="logo">UFINITY</span>
-  <div class="topbar-right">
-    <span class="progress-label" id="prog-label" style="display:none">0%</span>
-    <svg class="progress-ring" id="prog-ring" style="display:none" viewBox="0 0 28 28">
-      <circle class="progress-ring-bg" cx="14" cy="14" r="12"/>
-      <circle class="progress-ring-fill" id="prog-fill" cx="14" cy="14" r="12"/>
-    </svg>
+<div class="masthead">
+  <div class="masthead-in">
+    <div class="brand">u<span class="cy">f</span>inity</div>
+    <div class="mast-meta">
+      <span class="mast-count" id="pct" style="display:none">0% complete</span>
+      <svg class="ring" id="ring" style="display:none" viewBox="0 0 30 30">
+        <circle class="ring-bg" cx="15" cy="15" r="13"/>
+        <circle class="ring-fg" id="ringfg" cx="15" cy="15" r="13"/>
+      </svg>
+    </div>
   </div>
 </div>
 
-<!-- ── Admin ───────────────────────────────────────── -->
+<!-- ════════ ADMIN ════════ -->
 <div id="v-admin" style="display:none">
-  <div class="page">
-    <div class="admin-head">
-      <h1>Generate a feedback link</h1>
-      <p>Enter the team member's details. Their name will appear throughout the form so clients know exactly who they're reviewing.</p>
-    </div>
+<div class="page">
+  <div class="ad-h">
+    <h1>Create a feedback link</h1>
+    <p>Enter any team member's name to generate their personalised feedback form. Send the link to your client and their name will appear throughout the form.</p>
+  </div>
 
-    <div class="card">
-      <div class="card-inner">
-        <div class="fld">
-          <label class="fld-label" for="a-name">Team member name <span style="color:var(--err)">*</span></label>
-          <div class="fld-hint">This name appears in the form heading and every question.</div>
-          <input type="text" id="a-name" placeholder="e.g. Anthony, Wesley, Kelvin Wong" oninput="aClr()">
-          <div class="err-text" id="a-name-e">Please enter the team member's name.</div>
-        </div>
-        <div class="fld">
-          <label class="fld-label" for="a-role">Role <span style="font-weight:400;color:var(--text-3)">(optional)</span></label>
-          <div class="fld-hint">Shown in the form subtitle for context.</div>
-          <select id="a-role">
-            <option value="">— Select role —</option>
-            <option>Salesforce Developer</option>
-            <option>Project Manager</option>
-            <option>QA Engineer</option>
-            <option>Quality Engineer</option>
-            <option>Business Analyst</option>
-            <option>UX Designer</option>
-          </select>
-        </div>
-      </div>
-      <div class="card-foot">
-        <button class="btn btn-blue" onclick="genLink()">Generate link</button>
-      </div>
-      <div class="link-result" id="link-box">
-        <div class="link-result-head">Your shareable link</div>
-        <div class="link-result-url" id="link-url"></div>
-        <div class="link-result-actions">
-          <button class="btn btn-blue btn-sm" onclick="cpLink(this)">Copy link</button>
-          <button class="btn btn-outline btn-sm" onclick="pvLink()">Preview</button>
-        </div>
-        <div class="link-preview-wrap">
-          <div class="link-preview-label">Notice the client will see</div>
-          <div class="link-preview-text" id="link-prev"></div>
-        </div>
-      </div>
-    </div>
+  <div class="fld">
+    <div class="fld-q">Team member name <span class="star">*</span></div>
+    <div class="fld-help">Their name appears in the form heading and every question.</div>
+    <input type="text" id="a-nm" placeholder="e.g. Anthony Lim" oninput="aclr()">
+    <div class="msg-err" id="a-nm-e">Please enter the team member's name.</div>
+  </div>
 
-    <div class="card" id="recent-card" style="display:none">
-      <div class="card-inner" style="padding-bottom:0">
-        <div class="recent-hd" style="padding:0;margin-bottom:8px;">Recent links</div>
-      </div>
-      <div id="recent-list"></div>
-      <div style="height:1px"></div>
+  <div class="fld">
+    <div class="fld-q">Role <span class="opt-tag">(optional)</span></div>
+    <div class="fld-help">Shown alongside their name for client context.</div>
+    <select id="a-rl">
+      <option value="">Select a role</option>
+      <option>Salesforce Developer</option>
+      <option>Project Manager</option>
+      <option>QA Engineer</option>
+      <option>Quality Engineer</option>
+      <option>Business Analyst</option>
+      <option>UX Designer</option>
+    </select>
+  </div>
+
+  <button class="btn btn-p" onclick="mklink()">Generate link</button>
+
+  <div class="out" id="out">
+    <div class="out-top">Shareable link</div>
+    <div class="out-url" id="out-url"></div>
+    <div class="out-btns">
+      <button class="btn btn-p btn-s" onclick="cp(this)">Copy link</button>
+      <button class="btn btn-o btn-s" onclick="pv()">Preview form</button>
+    </div>
+    <div class="out-prev">
+      <div class="out-prev-k">What your client will read</div>
+      <div class="out-prev-v" id="out-prev"></div>
     </div>
   </div>
+
+  <div class="hist" id="hist" style="display:none">
+    <div class="hist-h">Previously generated</div>
+    <div id="hist-list"></div>
+  </div>
+</div>
 </div>
 
-<!-- ── Survey ──────────────────────────────────────── -->
-<div id="v-survey" style="display:none">
-  <div class="page">
+<!-- ════════ SURVEY ════════ -->
+<div id="v-form" style="display:none">
+<div class="page">
 
-    <!-- Subject hero -->
-    <div class="subject-hero">
-      <div class="subject-eyebrow">Performance review feedback for</div>
-      <div class="subject-name member-name"></div>
-      <p class="subject-notice">
-        As part of our standard review process, we would like to gather your feedback on <strong class="member-name"></strong>'s performance. Your input is valued and will be used to support their professional development. This takes approximately 5 minutes.
-      </p>
+  <div class="hero">
+    <div class="hero-eyebrow">Performance review</div>
+    <h1 class="hero-name nm"></h1>
+    <p class="hero-body">As part of our standard review process, we would like to gather your feedback on <strong class="nm"></strong>'s performance. Your input is valued and will be used to support their professional development.</p>
+    <div class="hero-meta">
+      <div class="hero-meta-item">
+        <span class="hero-meta-k">Questions</span>
+        <span class="hero-meta-v">11</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="hero-meta-k">Time needed</span>
+        <span class="hero-meta-v">About 5 minutes</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="hero-meta-k">Confidentiality</span>
+        <span class="hero-meta-v">Ufinity internal only</span>
+      </div>
     </div>
+  </div>
 
-    <!-- Section 1 -->
+  <!-- Sec 1 -->
+  <div class="sec">
     <div class="sec-head">
-      <span class="sec-num">01</span>
-      <span class="sec-title">Your details</span>
+      <div class="sec-kicker">Part one</div>
+      <div class="sec-title">Your details</div>
     </div>
 
-    <div class="q-wrap">
-      <div class="q-label">Your full name <span class="req">*</span></div>
-      <div class="q-hint">So we can follow up with you if needed.</div>
-      <input type="text" id="f-name" placeholder="Enter your full name" oninput="prog()">
-      <div class="q-err" id="e-name">This field is required.</div>
+    <div class="fld">
+      <div class="fld-q">Your full name <span class="star">*</span></div>
+      <div class="fld-help">So we can follow up with you if needed.</div>
+      <input type="text" id="f-nm" placeholder="Enter your full name" oninput="pg()">
+      <div class="msg-err" id="e-nm">Please enter your name.</div>
     </div>
 
-    <div class="q-wrap">
-      <div class="q-label">Your role on the project <span class="req">*</span></div>
-      <div class="q-hint">Helps us understand your working relationship with <span class="member-name"></span>.</div>
-      <select id="f-role" onchange="prog()">
-        <option value="">— Select your role —</option>
+    <div class="fld">
+      <div class="fld-q">Your role on the project <span class="star">*</span></div>
+      <div class="fld-help">Helps us understand your working relationship with <span class="nm"></span>.</div>
+      <select id="f-rl" onchange="pg()">
+        <option value="">Select your role</option>
         <option>Project Manager</option>
         <option>QA Engineer</option>
         <option>Quality Engineer</option>
         <option>Salesforce Developer</option>
         <option>Business Analyst</option>
         <option>Team Lead</option>
-        <option>Others</option>
+        <option>Other</option>
       </select>
-      <div class="q-err" id="e-role">Please select your role.</div>
+      <div class="msg-err" id="e-rl">Please select your role.</div>
     </div>
 
-    <div class="q-wrap">
-      <div class="q-label">Project or agency <span class="req">*</span></div>
-      <div class="q-hint">The project or agency where you work with <span class="member-name"></span>.</div>
-      <input type="text" id="f-proj" placeholder="e.g. Ministry of Social and Family Development" oninput="prog()">
-      <div class="q-err" id="e-proj">This field is required.</div>
+    <div class="fld">
+      <div class="fld-q">Project or agency <span class="star">*</span></div>
+      <div class="fld-help">Where you work with <span class="nm"></span>.</div>
+      <input type="text" id="f-pj" placeholder="e.g. Ministry of Social and Family Development" oninput="pg()">
+      <div class="msg-err" id="e-pj">Please enter the project or agency.</div>
     </div>
-
-    <div class="divider"></div>
-
-    <!-- Section 2 -->
-    <div class="sec-head">
-      <span class="sec-num">02</span>
-      <span class="sec-title">Performance feedback</span>
-    </div>
-
-    <div class="scale-legend">
-      <strong>1</strong> Needs Significant Improvement &nbsp;
-      <strong>2</strong> Below Expectations &nbsp;
-      <strong>3</strong> Meets Expectations &nbsp;
-      <strong>4</strong> Very Good &nbsp;
-      <strong>5</strong> Excellent &nbsp;
-      <strong>N/A</strong> Insufficient Exposure
-      <span class="note">Ratings of 1 or 2 require a comment so we can take appropriate action.</span>
-    </div>
-
-    <div class="q-wrap">
-      <div class="q-label">Role competence <span class="req">*</span></div>
-      <div class="q-hint">How would you rate <span class="member-name"></span>'s craft knowledge and ability to carry out their assigned responsibilities?</div>
-      <div id="sc-q4"></div>
-      <div class="q-err" id="e-q4">Please provide a rating.</div>
-    </div>
-    <div class="q-wrap">
-      <div class="q-label">Quality, professionalism and reliability <span class="req">*</span></div>
-      <div class="q-hint">How would you rate the quality of <span class="member-name"></span>'s work, professionalism and follow-through on commitments?</div>
-      <div id="sc-q5"></div>
-      <div class="q-err" id="e-q5">Please provide a rating.</div>
-    </div>
-    <div class="q-wrap">
-      <div class="q-label">Communication and responsiveness <span class="req">*</span></div>
-      <div class="q-hint">How would you rate <span class="member-name"></span>'s clarity of communication, timeliness and responsiveness to queries?</div>
-      <div id="sc-q6"></div>
-      <div class="q-err" id="e-q6">Please provide a rating.</div>
-    </div>
-    <div class="q-wrap">
-      <div class="q-label">Collaboration and teamwork <span class="req">*</span></div>
-      <div class="q-hint">How well does <span class="member-name"></span> collaborate and work with your team?</div>
-      <div id="sc-q7"></div>
-      <div class="q-err" id="e-q7">Please provide a rating.</div>
-    </div>
-    <div class="q-wrap">
-      <div class="q-label">Proactiveness in flagging issues or risks <span class="req">*</span></div>
-      <div class="q-hint">How well does <span class="member-name"></span> proactively identify and raise issues or risks?</div>
-      <div id="sc-q8"></div>
-      <div class="q-err" id="e-q8">Please provide a rating.</div>
-    </div>
-
-    <div class="divider"></div>
-
-    <!-- Section 3 -->
-    <div class="sec-head">
-      <span class="sec-num">03</span>
-      <span class="sec-title">Overall assessment</span>
-    </div>
-
-    <div class="q-wrap">
-      <div class="q-label">Overall satisfaction with performance <span class="req">*</span></div>
-      <div class="q-hint">Overall, how satisfied are you with <span class="member-name"></span>'s performance and contribution to your project?</div>
-      <div id="sc-q9"></div>
-      <div class="q-err" id="e-q9">Please provide a rating.</div>
-    </div>
-
-    <div class="q-wrap">
-      <div class="q-label">Strengths and areas for improvement <span style="font-weight:400;color:var(--text-3)">(optional)</span></div>
-      <div class="q-hint">Any specific strengths or areas where you feel <span class="member-name"></span> could develop further.</div>
-      <textarea id="f-open" placeholder="Share any observations on strengths or development areas..."></textarea>
-    </div>
-
-    <div class="q-wrap">
-      <div class="q-label">Continuation on the project <span class="req">*</span></div>
-      <div class="q-hint">Are you comfortable with <span class="member-name"></span> continuing on your project?</div>
-      <div class="choice-list" id="cont-list">
-        <div class="choice-item" data-v="yes" data-c="s-yes" onclick="pickC(this)">
-          <div class="choice-radio"><div class="radio-fill"></div></div>
-          <div>
-            <div class="choice-title">Yes, fully satisfied</div>
-            <div class="choice-sub">Performance meets expectations. Happy with their contribution.</div>
-          </div>
-        </div>
-        <div class="choice-item" data-v="partial" data-c="s-partial" onclick="pickC(this)">
-          <div class="choice-radio"><div class="radio-fill"></div></div>
-          <div>
-            <div class="choice-title">Yes, with some improvements needed <span style="font-size:12px;font-weight:400">(comment required)</span></div>
-            <div class="choice-sub">Generally satisfied, but specific areas need attention.</div>
-          </div>
-        </div>
-        <div class="choice-item" data-v="notyet" data-c="s-notyet" onclick="pickC(this)">
-          <div class="choice-radio"><div class="radio-fill"></div></div>
-          <div>
-            <div class="choice-title">Not yet — more time or improvement needed <span style="font-size:12px;font-weight:400">(comment required)</span></div>
-            <div class="choice-sub">Performance has not yet met my expectations.</div>
-          </div>
-        </div>
-        <div class="choice-item" data-v="unable" data-c="s-unable" onclick="pickC(this)">
-          <div class="choice-radio"><div class="radio-fill"></div></div>
-          <div>
-            <div class="choice-title">Unable to assess at this stage</div>
-            <div class="choice-sub">Insufficient working exposure to give a fair assessment.</div>
-          </div>
-        </div>
-      </div>
-      <div class="q-err" id="e-cont">Please select an option.</div>
-      <div class="cont-cmt" id="cont-cmt">
-        <div style="font-size:13px;font-weight:600;color:var(--warn);margin-bottom:6px;">Comment required <span style="color:var(--err)">*</span></div>
-        <div style="font-size:12.5px;color:var(--text-2);margin-bottom:8px;line-height:1.5;">Please describe the specific concerns so we can take appropriate action to support <span class="member-name"></span>.</div>
-        <textarea class="sub-textarea req-border" id="f-cont-cmt" placeholder="Describe specific concerns or areas for improvement..."></textarea>
-        <div class="sub-err" id="e-cont-cmt">Please provide your comments.</div>
-      </div>
-    </div>
-
-    <!-- Submit -->
-    <div class="submit-wrap">
-      <p class="submit-note">Your responses are strictly confidential and shared only with the relevant Ufinity personnel for staff development purposes.</p>
-      <button class="submit-btn" id="sub-btn" onclick="doSub()">Submit feedback</button>
-      <div class="submit-err" id="sub-err"></div>
-    </div>
-
   </div>
+
+  <!-- Sec 2 -->
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-kicker">Part two</div>
+      <div class="sec-title">Performance feedback</div>
+      <p class="sec-desc">Rate each area based on your experience working with <span class="nm"></span>.</p>
+    </div>
+
+    <div class="legend">
+      <div class="legend-grid">
+        <div class="legend-item"><span class="legend-n">1</span><span class="legend-t">Needs significant improvement</span></div>
+        <div class="legend-item"><span class="legend-n">2</span><span class="legend-t">Below expectations</span></div>
+        <div class="legend-item"><span class="legend-n">3</span><span class="legend-t">Meets expectations</span></div>
+        <div class="legend-item"><span class="legend-n">4</span><span class="legend-t">Very good</span></div>
+        <div class="legend-item"><span class="legend-n">5</span><span class="legend-t">Excellent</span></div>
+        <div class="legend-item"><span class="legend-n">N/A</span><span class="legend-t">Insufficient exposure</span></div>
+      </div>
+      <div class="legend-rule"><span>Note</span><span>Ratings of 1 or 2 require a short comment so we can act on the feedback.</span></div>
+    </div>
+
+    <div class="fld">
+      <div class="fld-q">Role competence <span class="star">*</span></div>
+      <div class="fld-help">How would you rate <span class="nm"></span>'s craft knowledge and ability to carry out their assigned responsibilities?</div>
+      <div id="r-q4"></div>
+      <div class="msg-err" id="e-q4">Please select a rating.</div>
+    </div>
+
+    <div class="fld">
+      <div class="fld-q">Quality, professionalism and reliability <span class="star">*</span></div>
+      <div class="fld-help">How would you rate the quality of <span class="nm"></span>'s work, their professionalism and follow-through on commitments?</div>
+      <div id="r-q5"></div>
+      <div class="msg-err" id="e-q5">Please select a rating.</div>
+    </div>
+
+    <div class="fld">
+      <div class="fld-q">Communication and responsiveness <span class="star">*</span></div>
+      <div class="fld-help">How would you rate <span class="nm"></span>'s clarity of communication, timeliness of updates and responsiveness to queries?</div>
+      <div id="r-q6"></div>
+      <div class="msg-err" id="e-q6">Please select a rating.</div>
+    </div>
+
+    <div class="fld">
+      <div class="fld-q">Collaboration and teamwork <span class="star">*</span></div>
+      <div class="fld-help">How well does <span class="nm"></span> collaborate and work with your team?</div>
+      <div id="r-q7"></div>
+      <div class="msg-err" id="e-q7">Please select a rating.</div>
+    </div>
+
+    <div class="fld">
+      <div class="fld-q">Proactiveness in flagging issues or risks <span class="star">*</span></div>
+      <div class="fld-help">How well does <span class="nm"></span> proactively identify and raise issues, risks or areas needing attention?</div>
+      <div id="r-q8"></div>
+      <div class="msg-err" id="e-q8">Please select a rating.</div>
+    </div>
+  </div>
+
+  <!-- Sec 3 -->
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-kicker">Part three</div>
+      <div class="sec-title">Overall assessment</div>
+    </div>
+
+    <div class="fld">
+      <div class="fld-q">Overall satisfaction with performance <span class="star">*</span></div>
+      <div class="fld-help">Overall, how satisfied are you with <span class="nm"></span>'s performance and contribution to your project?</div>
+      <div id="r-q9"></div>
+      <div class="msg-err" id="e-q9">Please select a rating.</div>
+    </div>
+
+    <div class="fld">
+      <div class="fld-q">Strengths and areas for improvement <span class="opt-tag">(optional)</span></div>
+      <div class="fld-help">Any specific strengths, or areas where you feel <span class="nm"></span> could develop further.</div>
+      <textarea id="f-open" placeholder="Share any observations on strengths or development areas"></textarea>
+    </div>
+
+    <div class="fld">
+      <div class="fld-q">Continuation on the project <span class="star">*</span></div>
+      <div class="fld-help">Are you comfortable with <span class="nm"></span> continuing on your project?</div>
+      <div class="choices" id="chs">
+        <div class="ch" data-v="yes" data-c="is-ok" onclick="pick(this)">
+          <div class="ch-dot"><div class="ch-in"></div></div>
+          <div>
+            <div class="ch-t">Yes, fully satisfied</div>
+            <div class="ch-s">Performance meets expectations and I am happy with their contribution.</div>
+          </div>
+        </div>
+        <div class="ch" data-v="partial" data-c="is-warn" onclick="pick(this)">
+          <div class="ch-dot"><div class="ch-in"></div></div>
+          <div>
+            <div class="ch-t">Yes, with some improvements needed <span class="ch-flag">— comment required</span></div>
+            <div class="ch-s">Generally satisfied, but specific areas need attention.</div>
+          </div>
+        </div>
+        <div class="ch" data-v="notyet" data-c="is-stop" onclick="pick(this)">
+          <div class="ch-dot"><div class="ch-in"></div></div>
+          <div>
+            <div class="ch-t">Not yet, more time or improvement needed <span class="ch-flag">— comment required</span></div>
+            <div class="ch-s">Performance has not yet met my expectations.</div>
+          </div>
+        </div>
+        <div class="ch" data-v="unable" data-c="is-na" onclick="pick(this)">
+          <div class="ch-dot"><div class="ch-in"></div></div>
+          <div>
+            <div class="ch-t">Unable to assess at this stage</div>
+            <div class="ch-s">Insufficient working exposure to give a fair assessment.</div>
+          </div>
+        </div>
+      </div>
+      <div class="msg-err" id="e-ch">Please select an option.</div>
+      <div class="ch-cmt" id="ch-cmt">
+        <div class="cmt-lbl"><span class="must on">Comment required</span></div>
+        <div style="font-size:13.5px;color:var(--gray-1);margin-bottom:10px;line-height:1.6;">Please describe the specific concerns so we can take appropriate action to support <span class="nm"></span>.</div>
+        <textarea class="cmt-box needed" id="f-chc" placeholder="Describe the specific concerns or areas for improvement"></textarea>
+        <div class="cmt-err" id="e-chc">Please provide your comments.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="send">
+    <p class="send-note">Your responses are confidential and shared only with the relevant Ufinity personnel for staff development purposes.</p>
+    <button class="send-btn" id="sb" onclick="go()">Submit feedback</button>
+    <div class="send-err" id="se"></div>
+  </div>
+
+</div>
 </div>
 
-<!-- ── Thank you ────────────────────────────────────── -->
-<div id="v-ty" style="display:none">
-  <div class="ty-page">
-    <div class="ty-icon">✓</div>
+<!-- ════════ DONE ════════ -->
+<div id="v-done" style="display:none">
+  <div class="done">
+    <div class="done-tick">✓</div>
     <h2>Thank you for your feedback</h2>
-    <p>Your feedback on <strong class="member-name"></strong> has been submitted. We appreciate you taking the time — your input will support their professional development and help us continue delivering quality service to your project.</p>
+    <p>Your feedback on <strong class="nm"></strong> has been submitted. We appreciate you taking the time — your input will support their professional development and help us continue delivering quality service to your project.</p>
   </div>
 </div>
 
 <script>
-const FORMSPREE='https://formspree.io/f/REPLACE_WITH_YOUR_ID';
-const QLABELS={'1':'Needs Significant Improvement','2':'Below Expectations','3':'Meets Expectations','4':'Very Good','5':'Excellent','na':'Insufficient Exposure'};
-const QIDS=['q4','q5','q6','q7','q8','q9'];
-const QNAMES={q4:'Role Competence',q5:'Quality, Professionalism & Reliability',q6:'Communication & Responsiveness',q7:'Collaboration & Teamwork',q8:'Proactiveness in Flagging Issues',q9:'Overall Satisfaction'};
-const LS='uf_v2';
-let name='',ratings={},cont=null;
-const CIRCUMFERENCE=75.4;
+const FS='https://formspree.io/f/REPLACE_WITH_YOUR_ID';
+const L={'1':'Needs significant improvement','2':'Below expectations','3':'Meets expectations','4':'Very good','5':'Excellent','na':'Insufficient exposure'};
+const Q=['q4','q5','q6','q7','q8','q9'];
+const QN={q4:'Role Competence',q5:'Quality, Professionalism & Reliability',q6:'Communication & Responsiveness',q7:'Collaboration & Teamwork',q8:'Proactiveness in Flagging Issues',q9:'Overall Satisfaction'};
+const KEY='uf_v3',C=81.7;
+let nm='',R={},ch=null;
 
 function init(){
-  const p=new URLSearchParams(location.search),n=p.get('name');
-  if(n){name=decodeURIComponent(n);showSurvey();}
-  else showAdmin();
+  const n=new URLSearchParams(location.search).get('name');
+  if(n){nm=decodeURIComponent(n);openForm();}else openAdmin();
 }
 
-/* ═══ ADMIN ═══════════════════════════════════════ */
-function showAdmin(){
-  document.getElementById('v-admin').style.display='block';
-  setProg(100);
-  loadRecent();
-}
-function aClr(){
-  document.getElementById('a-name-e').classList.remove('on');
-  document.getElementById('a-name').classList.remove('inp-err');
-}
-function genLink(){
-  const n=document.getElementById('a-name').value.trim();
-  if(!n){
-    document.getElementById('a-name-e').classList.add('on');
-    document.getElementById('a-name').classList.add('inp-err');
-    return;
-  }
-  const r=document.getElementById('a-role').value;
+/* ADMIN */
+function openAdmin(){document.getElementById('v-admin').style.display='block';loadHist();}
+function aclr(){document.getElementById('a-nm-e').classList.remove('on');document.getElementById('a-nm').classList.remove('bad');}
+function mklink(){
+  const n=document.getElementById('a-nm').value.trim();
+  if(!n){document.getElementById('a-nm-e').classList.add('on');document.getElementById('a-nm').classList.add('bad');return;}
+  const r=document.getElementById('a-rl').value;
   const q=new URLSearchParams({name:n});if(r)q.set('role',r);
-  const url=location.origin+location.pathname+'?'+q;
-  document.getElementById('link-url').textContent=url;
-  document.getElementById('link-prev').textContent=`"As part of our standard review process, we would like to gather your feedback on ${n}'s performance."`;
-  document.getElementById('link-box').style.display='block';
-  saveR(n,r,url);
+  const u=location.origin+location.pathname+'?'+q;
+  document.getElementById('out-url').textContent=u;
+  document.getElementById('out-prev').textContent=`"As part of our standard review process, we would like to gather your feedback on ${n}'s performance."`;
+  document.getElementById('out').style.display='block';
+  saveH(n,r,u);
 }
-function cpLink(btn){
-  navigator.clipboard.writeText(document.getElementById('link-url').textContent).then(()=>{
-    btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy link',2200);
-  });
+function cp(b){navigator.clipboard.writeText(document.getElementById('out-url').textContent).then(()=>{b.textContent='Copied';setTimeout(()=>b.textContent='Copy link',2200);});}
+function pv(){window.open(document.getElementById('out-url').textContent,'_blank');}
+function saveH(n,r,u){
+  const a=JSON.parse(localStorage.getItem(KEY)||'[]').filter(x=>x.n!==n);
+  a.unshift({n,r,u,d:new Date().toLocaleDateString('en-SG',{day:'numeric',month:'short',year:'numeric'})});
+  localStorage.setItem(KEY,JSON.stringify(a.slice(0,10)));loadHist();
 }
-function pvLink(){window.open(document.getElementById('link-url').textContent,'_blank');}
-function saveR(n,r,url){
-  const a=JSON.parse(localStorage.getItem(LS)||'[]').filter(x=>x.n!==n);
-  a.unshift({n,r,url,d:new Date().toLocaleDateString('en-SG')});
-  localStorage.setItem(LS,JSON.stringify(a.slice(0,8)));loadRecent();
-}
-function loadRecent(){
-  const a=JSON.parse(localStorage.getItem(LS)||'[]');
-  const card=document.getElementById('recent-card');
-  if(!a.length){card.style.display='none';return;}
-  card.style.display='block';
-  document.getElementById('recent-list').innerHTML=a.map(x=>`
-    <div class="recent-row">
+function loadHist(){
+  const a=JSON.parse(localStorage.getItem(KEY)||'[]'),h=document.getElementById('hist');
+  if(!a.length){h.style.display='none';return;}
+  h.style.display='block';
+  document.getElementById('hist-list').innerHTML=a.map(x=>`
+    <div class="hrow">
       <div>
-        <div class="recent-name">${x.n}${x.r?` <span style="font-weight:400;color:var(--text-3);font-size:12.5px;">— ${x.r}</span>`:''}</div>
-        <div class="recent-sub">Generated ${x.d}</div>
+        <div class="hrow-n">${x.n}</div>
+        <div class="hrow-m">${x.r?x.r+' · ':''}${x.d}</div>
       </div>
-      <div class="recent-btns">
-        <button class="btn btn-outline btn-sm" onclick="navigator.clipboard.writeText('${x.url}');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',2200)">Copy</button>
-        <button class="btn btn-outline btn-sm" onclick="window.open('${x.url}','_blank')">Open</button>
+      <div class="hrow-b">
+        <button class="btn btn-o btn-s" onclick="navigator.clipboard.writeText('${x.u}');this.textContent='Copied';setTimeout(()=>this.textContent='Copy',2200)">Copy</button>
+        <button class="btn btn-o btn-s" onclick="window.open('${x.u}','_blank')">Open</button>
       </div>
     </div>`).join('');
 }
 
-/* ═══ SURVEY ═══════════════════════════════════════ */
-function showSurvey(){
-  document.querySelectorAll('.member-name').forEach(el=>el.textContent=name);
-  document.getElementById('v-survey').style.display='block';
-  document.getElementById('prog-label').style.display='block';
-  document.getElementById('prog-ring').style.display='block';
-  QIDS.forEach(buildScale);
+/* FORM */
+function openForm(){
+  document.querySelectorAll('.nm').forEach(e=>e.textContent=nm);
+  document.getElementById('v-form').style.display='block';
+  document.getElementById('pct').style.display='block';
+  document.getElementById('ring').style.display='block';
+  Q.forEach(mkRate);pg();
 }
-function buildScale(id){
-  document.getElementById('sc-'+id).innerHTML=`
-    <div class="scale-btns" id="sb-${id}">
-      ${[1,2,3,4,5].map(n=>`<button class="r-btn" onclick="setR('${id}',${n})">${n}</button>`).join('')}
-    </div>
-    <div class="scale-foot"><span>Needs Significant Improvement</span><span>Excellent</span></div>
-    <button class="na-btn" onclick="setR('${id}','na')">N/A — Insufficient exposure</button>
-    <div class="r-feedback" id="rf-${id}"></div>
-    <div class="sub-field">
-      <div class="sub-field-label">
-        <span class="required-tag" id="rtag-${id}">Comment required for this rating — </span>additional comments
-        <span id="ropt-${id}" style="color:var(--text-3)"> (optional)</span>
+function mkRate(id){
+  document.getElementById('r-'+id).innerHTML=`
+    <div class="rate">
+      <div class="rate-btns" id="rb-${id}">
+        ${[1,2,3,4,5].map(n=>`<button class="rb" onclick="setR('${id}',${n})">${n}</button>`).join('')}
+        <button class="na" onclick="setR('${id}','na')">N/A</button>
       </div>
-      <textarea class="sub-textarea" id="ct-${id}" placeholder="Share any context or remarks..."></textarea>
-      <div class="sub-err" id="ce-${id}">A comment is required for this rating.</div>
+      <div class="rate-scale"><span>Needs improvement</span><span>Excellent</span></div>
+      <div class="rate-out" id="ro-${id}"></div>
+      <div class="cmt">
+        <div class="cmt-lbl"><span class="must" id="mu-${id}">Comment required —</span> <span id="op-${id}">Additional comments (optional)</span></div>
+        <textarea class="cmt-box" id="cb-${id}" placeholder="Share any context or remarks"></textarea>
+        <div class="cmt-err" id="ce-${id}">A comment is required for this rating.</div>
+      </div>
     </div>`;
 }
-function setR(id,val){
-  ratings[id]=val;
-  const isLow=val===1||val===2;
-  document.querySelectorAll(`#sb-${id} .r-btn`).forEach(b=>{
+function setR(id,v){
+  R[id]=v;const low=v===1||v===2;
+  document.querySelectorAll(`#rb-${id} .rb`).forEach(b=>{
     b.classList.remove('on','on-low');
-    if(+b.textContent===val)b.classList.add(isLow?'on-low':'on');
+    if(+b.textContent===v)b.classList.add(low?'on-low':'on');
   });
-  document.querySelector(`#sc-${id} .na-btn`).classList.toggle('on',val==='na');
-  const rf=document.getElementById('rf-'+id);
-  rf.textContent=QLABELS[String(val)];
-  rf.className='r-feedback'+(isLow?' low':'');
-  const rtag=document.getElementById('rtag-'+id);
-  const ropt=document.getElementById('ropt-'+id);
-  const ct=document.getElementById('ct-'+id);
-  rtag.classList.toggle('on',isLow);
-  if(ropt)ropt.style.display=isLow?'none':'inline';
-  ct.classList.toggle('req-border',isLow);
-  ct.placeholder=isLow?'Please share your comments — required for ratings of 1 or 2...':'Share any context or remarks (optional)...';
-  if(!isLow)document.getElementById('ce-'+id).classList.remove('on');
-  document.getElementById('e-'+id).classList.remove('on');
-  prog();
+  document.querySelector(`#rb-${id} .na`).classList.toggle('on',v==='na');
+  const o=document.getElementById('ro-'+id);
+  o.textContent=L[String(v)];o.className='rate-out'+(low?' low':'');
+  document.getElementById('mu-'+id).classList.toggle('on',low);
+  document.getElementById('op-'+id).style.display=low?'none':'inline';
+  const cb=document.getElementById('cb-'+id);
+  cb.classList.toggle('needed',low);
+  cb.placeholder=low?'Please explain the rating so we can act on it':'Share any context or remarks';
+  if(!low)document.getElementById('ce-'+id).classList.remove('on');
+  document.getElementById('e-'+id).classList.remove('on');pg();
 }
-function pickC(el){
-  document.getElementById('cont-list').querySelectorAll('.choice-item').forEach(i=>i.className='choice-item');
-  el.classList.add(el.dataset.c);
-  cont=el.dataset.v;
-  const need=['partial','notyet'].includes(cont);
-  document.getElementById('cont-cmt').style.display=need?'block':'none';
-  if(!need)document.getElementById('e-cont-cmt').classList.remove('on');
-  document.getElementById('e-cont').classList.remove('on');
-  prog();
+function pick(el){
+  document.getElementById('chs').querySelectorAll('.ch').forEach(x=>x.className='ch');
+  el.classList.add(el.dataset.c);ch=el.dataset.v;
+  const need=['partial','notyet'].includes(ch);
+  document.getElementById('ch-cmt').style.display=need?'block':'none';
+  if(!need)document.getElementById('e-chc').classList.remove('on');
+  document.getElementById('e-ch').classList.remove('on');pg();
 }
-function setProg(pct){
-  document.getElementById('prog-label').textContent=pct+'%';
-  document.getElementById('prog-fill').style.strokeDashoffset=CIRCUMFERENCE-(CIRCUMFERENCE*pct/100);
-}
-function prog(){
-  const req=['f-name','f-role','f-proj',...QIDS,'cont'];
-  let done=0;
-  req.forEach(id=>{
-    if(id==='cont'){if(cont)done++;}
-    else if(QIDS.includes(id)){if(ratings[id]!=null)done++;}
-    else{if(document.getElementById(id)?.value)done++;}
+function pg(){
+  const req=['f-nm','f-rl','f-pj',...Q,'ch'];let d=0;
+  req.forEach(i=>{
+    if(i==='ch'){if(ch)d++;}
+    else if(Q.includes(i)){if(R[i]!=null)d++;}
+    else if(document.getElementById(i)?.value)d++;
   });
-  setProg(Math.round(done/req.length*100));
+  const p=Math.round(d/req.length*100);
+  document.getElementById('pct').textContent=p+'% complete';
+  document.getElementById('ringfg').style.strokeDashoffset=C-(C*p/100);
 }
-function validate(){
-  let ok=true;
-  [['f-name','e-name'],['f-role','e-role'],['f-proj','e-proj']].forEach(([f,e])=>{
-    const el=document.getElementById(f),err=document.getElementById(e);
-    if(!el.value){err.classList.add('on');el.classList.add('inp-err');ok=false;}
-    else{err.classList.remove('on');el.classList.remove('inp-err');}
+function ok(){
+  let v=true;
+  [['f-nm','e-nm'],['f-rl','e-rl'],['f-pj','e-pj']].forEach(([f,e])=>{
+    const el=document.getElementById(f),er=document.getElementById(e);
+    if(!el.value){er.classList.add('on');el.classList.add('bad');v=false;}
+    else{er.classList.remove('on');el.classList.remove('bad');}
   });
-  QIDS.forEach(id=>{
-    const err=document.getElementById('e-'+id);
-    if(ratings[id]==null){err.classList.add('on');ok=false;}
+  Q.forEach(i=>{
+    const e=document.getElementById('e-'+i);
+    if(R[i]==null){e.classList.add('on');v=false;}
     else{
-      err.classList.remove('on');
-      if((ratings[id]===1||ratings[id]===2)&&!document.getElementById('ct-'+id).value.trim()){
-        document.getElementById('ce-'+id).classList.add('on');ok=false;
-      }else document.getElementById('ce-'+id).classList.remove('on');
+      e.classList.remove('on');
+      if((R[i]===1||R[i]===2)&&!document.getElementById('cb-'+i).value.trim()){
+        document.getElementById('ce-'+i).classList.add('on');v=false;
+      }else document.getElementById('ce-'+i).classList.remove('on');
     }
   });
-  const ec=document.getElementById('e-cont');
-  if(!cont){ec.classList.add('on');ok=false;}
+  const ec=document.getElementById('e-ch');
+  if(!ch){ec.classList.add('on');v=false;}
   else{
     ec.classList.remove('on');
-    if(['partial','notyet'].includes(cont)&&!document.getElementById('f-cont-cmt').value.trim()){
-      document.getElementById('e-cont-cmt').classList.add('on');ok=false;
-    }else document.getElementById('e-cont-cmt').classList.remove('on');
+    if(['partial','notyet'].includes(ch)&&!document.getElementById('f-chc').value.trim()){
+      document.getElementById('e-chc').classList.add('on');v=false;
+    }else document.getElementById('e-chc').classList.remove('on');
   }
-  return ok;
+  return v;
 }
-async function doSub(){
-  if(!validate()){
-    (document.querySelector('.q-err.on,.sub-err.on'))?.scrollIntoView({behavior:'smooth',block:'center'});
-    return;
-  }
-  const btn=document.getElementById('sub-btn');
-  btn.textContent='Submitting...';btn.disabled=true;
-  const p={'_subject':`Performance Review Feedback — ${name}`,'Team Member':name,'Respondent Name':document.getElementById('f-name').value,'Respondent Role':document.getElementById('f-role').value,'Project / Agency':document.getElementById('f-proj').value};
-  QIDS.forEach(id=>{
-    const v=ratings[id],l=QLABELS[String(v)];
-    p[QNAMES[id]+' — Rating']=v==='na'?'N/A — Insufficient Exposure':`${v} — ${l}`;
-    const c=document.getElementById('ct-'+id).value.trim();
-    if(c)p[QNAMES[id]+' — Comment']=c;
+async function go(){
+  if(!ok()){document.querySelector('.msg-err.on,.cmt-err.on')?.scrollIntoView({behavior:'smooth',block:'center'});return;}
+  const b=document.getElementById('sb');b.textContent='Submitting…';b.disabled=true;
+  const p={'_subject':`Performance Review Feedback — ${nm}`,'Team Member':nm,'Respondent Name':document.getElementById('f-nm').value,'Respondent Role':document.getElementById('f-rl').value,'Project / Agency':document.getElementById('f-pj').value};
+  Q.forEach(i=>{
+    const v=R[i];
+    p[QN[i]+' — Rating']=v==='na'?'N/A — Insufficient exposure':`${v} — ${L[String(v)]}`;
+    const c=document.getElementById('cb-'+i).value.trim();if(c)p[QN[i]+' — Comment']=c;
   });
   p['Strengths & Development Areas']=document.getElementById('f-open').value||'(Not provided)';
-  p['Continuation']={yes:'Yes, fully satisfied',partial:'Yes, with improvements needed',notyet:'Not yet — needs more time',unable:'Unable to assess at this stage'}[cont];
-  const cc=document.getElementById('f-cont-cmt').value.trim();
-  if(cc)p['Continuation — Comment']=cc;
-  p['Submitted At']=new Date().toISOString();
+  p['Continuation']={yes:'Yes, fully satisfied',partial:'Yes, with improvements needed',notyet:'Not yet — needs more time',unable:'Unable to assess'}[ch];
+  const cc=document.getElementById('f-chc').value.trim();if(cc)p['Continuation — Comment']=cc;
+  p['Submitted']=new Date().toISOString();
   try{
-    const r=await fetch(FORMSPREE,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(p)});
+    const r=await fetch(FS,{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify(p)});
     if(r.ok){
-      document.getElementById('v-survey').style.display='none';
-      document.getElementById('v-ty').style.display='block';
-      setProg(100);window.scrollTo({top:0,behavior:'smooth'});
-    }else{
-      const se=document.getElementById('sub-err');
-      se.textContent='Submission failed. Please try again or contact Ufinity directly.';
-      se.classList.add('on');btn.textContent='Submit feedback';btn.disabled=false;
-    }
-  }catch{
-    const se=document.getElementById('sub-err');
-    se.textContent='Network error. Please check your connection and try again.';
-    se.classList.add('on');btn.textContent='Submit feedback';btn.disabled=false;
-  }
+      document.getElementById('v-form').style.display='none';
+      document.getElementById('v-done').style.display='block';
+      document.getElementById('pct').style.display='none';
+      document.getElementById('ring').style.display='none';
+      window.scrollTo({top:0,behavior:'smooth'});
+    }else{fail(b,'Submission failed. Please try again or contact Ufinity directly.');}
+  }catch{fail(b,'Network error. Please check your connection and try again.');}
+}
+function fail(b,m){
+  const e=document.getElementById('se');e.textContent=m;e.classList.add('on');
+  b.textContent='Submit feedback';b.disabled=false;
 }
 init();
 </script>
