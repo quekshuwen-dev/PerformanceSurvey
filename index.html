@@ -6,7 +6,7 @@
 <title>Performance Feedback Request — Ufinity</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -24,8 +24,7 @@ body{font-family:'Inter',system-ui,sans-serif;font-size:14px;line-height:1.6;col
 /* ── Masthead ── */
 .mast{background:var(--white);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
 .mast-in{max-width:1060px;margin:0 auto;min-height:58px;padding:10px clamp(1rem,3vw,2rem);display:flex;align-items:center;justify-content:space-between;gap:14px}
-.brand{font-family:'Nunito',sans-serif;font-weight:800;font-size:24px;letter-spacing:-.7px;color:var(--blue);line-height:1;flex-shrink:0}
-.brand .cy{color:var(--cyan)}
+.brand-logo{height:30px;width:auto;display:block;flex-shrink:0}
 .pct{font-size:12.5px;color:var(--g2);font-weight:500;white-space:nowrap;display:none}
 
 /* ── Shell ── */
@@ -179,7 +178,7 @@ textarea{resize:vertical;line-height:1.55;min-height:76px;font-size:13.5px}
   .done{flex-direction:column;gap:16px;padding:24px 20px}
   .done h2{font-size:18.5px}
   .mast-in{min-height:54px}
-  .brand{font-size:21px}
+  .brand-logo{height:26px}
 }
 @media(max-width:400px){
   .radios{gap:10px 14px}
@@ -191,7 +190,7 @@ textarea{resize:vertical;line-height:1.55;min-height:76px;font-size:13.5px}
 
 <div class="mast">
   <div class="mast-in">
-    <div class="brand">u<span class="cy">f</span>inity</div>
+    <img src="logo.png" alt="Ufinity" class="brand-logo">
     <span class="pct" id="pct">0% complete</span>
   </div>
 </div>
@@ -204,9 +203,6 @@ textarea{resize:vertical;line-height:1.55;min-height:76px;font-size:13.5px}
     <p>Enter the team member's name and review period to generate a personalised feedback form. Send the link to your client and their name will appear throughout the form.</p>
   </div>
 
-  <div class="setup" id="setup">
-    <b>Setup required.</b> The form is not yet connected to a submission service, so responses cannot be received. Add your Formspree endpoint ID to activate it.
-  </div>
 
   <div class="card">
     <div class="part">
@@ -393,10 +389,9 @@ textarea{resize:vertical;line-height:1.55;min-height:76px;font-size:13.5px}
 
 <script>
 /* ═══ CONFIGURATION ═══
-   Replace the value below with your Formspree endpoint.
-   Sign up at formspree.io, create a form, and paste the full URL here.
-   Example: https://formspree.io/f/xyzabcde                        */
-const FS = 'https://formspree.io/f/REPLACE_WITH_YOUR_ID';
+   Formspree endpoint — responses are emailed to the account owner
+   and stored in the Formspree dashboard.                          */
+const FS = 'https://formspree.io/f/xoeqjovl';
 
 const L={'1':'Needs significant improvement','2':'Below expectations','3':'Meets expectations','4':'Very good','5':'Excellent','na':'Insufficient exposure'};
 const KEY='uf_v5';
@@ -424,7 +419,6 @@ function init(){
 /* ═══ ADMIN ═══ */
 function openAdmin(){
   document.getElementById('v-admin').style.display='block';
-  if(FS.includes('REPLACE_WITH')) document.getElementById('setup').classList.add('on');
   loadH();
 }
 function aclr(){document.getElementById('a-nm-e').classList.remove('on');document.getElementById('a-nm').classList.remove('bad')}
@@ -554,10 +548,6 @@ function ok(){
 }
 async function go(){
   if(!ok()){document.querySelector('.e.on')?.scrollIntoView({behavior:'smooth',block:'center'});return}
-  if(FS.includes('REPLACE_WITH')){
-    fail(document.getElementById('sb'),'This form is not yet connected to a submission service. Please contact Ufinity — your feedback has not been sent.');
-    return;
-  }
   const b=document.getElementById('sb');b.textContent='Submitting…';b.disabled=true;
   const p={
     '_subject':`Performance Feedback — ${nm}`,
