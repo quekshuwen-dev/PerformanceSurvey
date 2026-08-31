@@ -224,6 +224,9 @@ textarea{resize:vertical;line-height:1.55;min-height:76px;font-size:13.5px}
           <label class="f-lbl">Review period — to <span style="font-weight:400;color:var(--g2)">(optional)</span></label>
           <input type="date" id="a-d2">
         </div>
+        <div style="grid-column:1/-1;margin-top:-8px">
+          <div class="e" id="a-dt-e">The end date cannot be earlier than the start date.</div>
+        </div>
       </div>
       <div style="margin-top:20px"><button class="btn btn-p" onclick="mk()">Generate link</button></div>
 
@@ -425,9 +428,29 @@ function init(){
 /* ═══ ADMIN ═══ */
 function openAdmin(){
   document.getElementById('v-admin').style.display='block';
+  linkDates('a-d1','a-d2','a-dt-e');
   loadH();
 }
 function aclr(){document.getElementById('a-nm-e').classList.remove('on');document.getElementById('a-nm').classList.remove('bad')}
+/* Link two date inputs so the picker itself blocks an invalid range */
+function linkDates(id1,id2,errId){
+  const a=document.getElementById(id1),b=document.getElementById(id2);
+  const err=errId?document.getElementById(errId):null;
+  const sync=()=>{
+    b.min=a.value||'';
+    a.max=b.value||'';
+    const msg=checkRange(a.value,b.value);
+    if(err){
+      err.textContent=msg||err.textContent;
+      err.classList.toggle('on',!!msg);
+    }
+    a.classList.toggle('bad',!!msg);
+    b.classList.toggle('bad',!!msg);
+  };
+  a.addEventListener('change',sync);
+  b.addEventListener('change',sync);
+  sync();
+}
 function capName(el){
   const s=el.selectionStart,v=el.value;
   el.value=v.replace(/\b\w/g,c=>c.toUpperCase());
@@ -435,6 +458,16 @@ function capName(el){
 }
 
 const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+/* One formatter everywhere so "Sep" never renders as "Sept" */
+function today(){
+  const d=new Date();
+  return `${d.getDate()} ${MON[d.getMonth()]} ${d.getFullYear()}`;
+}
+/* Returns an error string, or '' when the range is valid */
+function checkRange(d1,d2){
+  if(d1&&d2&&d2<d1)return 'The end date cannot be earlier than the start date.';
+  return '';
+}
 /* Pack yyyy-mm-dd -> yyyymmdd for a compact URL */
 function packDates(d1,d2){
   const a=d1?d1.replace(/-/g,''):'', b=d2?d2.replace(/-/g,''):'';
@@ -476,7 +509,17 @@ function showLink(n,u){
 function mk(){
   const n=document.getElementById('a-nm').value.trim();
   if(!n){document.getElementById('a-nm-e').classList.add('on');document.getElementById('a-nm').classList.add('bad');return}
-  const packed=packDates(document.getElementById('a-d1').value,document.getElementById('a-d2').value);
+  const v1=document.getElementById('a-d1').value,v2=document.getElementById('a-d2').value;
+  const rangeErr=checkRange(v1,v2);
+  if(rangeErr){
+    const e=document.getElementById('a-dt-e');
+    e.textContent=rangeErr;e.classList.add('on');
+    document.getElementById('a-d1').classList.add('bad');
+    document.getElementById('a-d2').classList.add('bad');
+    return;
+  }
+  document.getElementById('a-dt-e').classList.remove('on');
+  const packed=packDates(v1,v2);
   const u=buildLink(n,packed);
   showLink(n,u);
   saveH(n,packed,u);
@@ -501,7 +544,7 @@ function cp(b){navigator.clipboard.writeText(document.getElementById('ou').textC
 function pv(){window.open(document.getElementById('ou').textContent,'_blank')}
 function saveH(n,p,u){
   const a=JSON.parse(localStorage.getItem(KEY)||'[]').filter(x=>x.n!==n);
-  a.unshift({n,p,u,d:new Date().toLocaleDateString('en-SG',{day:'numeric',month:'short',year:'numeric'})});
+  a.unshift({n,p,u,d:today()});
   localStorage.setItem(KEY,JSON.stringify(a.slice(0,10)));loadH();
 }
 function loadH(){
@@ -652,6 +695,10 @@ function openEdit(i){
   const parts=(a[i].p||'').split('-');
   document.getElementById('edit-d1').value=toInputDate(parts[0]||'');
   document.getElementById('edit-d2').value=toInputDate(parts[1]||'');
+  document.getElementById('edit-dt-e').classList.remove('on');
+  document.getElementById('edit-d1').classList.remove('bad');
+  document.getElementById('edit-d2').classList.remove('bad');
+  linkDates('edit-d1','edit-d2','edit-dt-e');
   document.getElementById('edit-modal').style.display='flex';
   setTimeout(()=>document.getElementById('edit-nm').focus(),50);
 }
@@ -664,10 +711,19 @@ function saveEdit(){
     document.getElementById('edit-nm').classList.add('bad');
     return;
   }
+  const v1=document.getElementById('edit-d1').value,v2=document.getElementById('edit-d2').value;
+  const rangeErr=checkRange(v1,v2);
+  if(rangeErr){
+    const e=document.getElementById('edit-dt-e');
+    e.textContent=rangeErr;e.classList.add('on');
+    document.getElementById('edit-d1').classList.add('bad');
+    document.getElementById('edit-d2').classList.add('bad');
+    return;
+  }
   const a=JSON.parse(localStorage.getItem(KEY)||'[]');
-  const packed=packDates(document.getElementById('edit-d1').value,document.getElementById('edit-d2').value);
+  const packed=packDates(v1,v2);
   const u=buildLink(n,packed);
-  a[editIdx]={n,p:packed,u,d:new Date().toLocaleDateString('en-SG',{day:'numeric',month:'short',year:'numeric'})};
+  a[editIdx]={n,p:packed,u,d:today()};
   localStorage.setItem(KEY,JSON.stringify(a));
   closeEdit();loadH();showLink(n,u);
 }
@@ -700,6 +756,9 @@ document.getElementById('edit-modal').addEventListener('click',function(e){if(e.
       <div>
         <label class="f-lbl">Period — to</label>
         <input type="date" id="edit-d2">
+      </div>
+      <div style="grid-column:1/-1;margin-top:-6px">
+        <div class="e" id="edit-dt-e">The end date cannot be earlier than the start date.</div>
       </div>
     </div>
 
