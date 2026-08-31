@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Performance Review Feedback — Ufinity</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:     #111827;
+  --slate:   #1E2D5E;
+  --slate-dk:#151F42;
+  --amber:   #C98A18;
+  --amber-lt:#FEF5E0;
+  --amber-bd:#F0CA7A;
+  --page:    #ECEEF2;
+  --surface: #FFFFFF;
+  --border:  #DDE1E8;
+  --muted:   #6B7385;
+  --hint:    #9298A6;
+  --green:   #15603A;
+  --green-lt:#E8F5EE;
+  --green-bd:#86D4A8;
+  --warn:    #854E0A;
+  --warn-lt: #FEF3E0;
+  --warn-bd: #F0C060;
+  --red:     #8B1F1F;
+  --red-lt:  #FDEAEA;
+  --red-bd:  #F4A0A0;
+  --na-lt:   #F3F4F7;
+  --err:     #C0392B;
+}
+body{
+  font-family:'Inter',system-ui,sans-serif;
+  font-size:14px;
+  line-height:1.6;
+  background:var(--page);
+  color:var(--ink);
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ── Header ──────────────────────────────────────── */
+.site-header{
+  background:var(--slate-dk);
+  padding:0 1.5rem;
+  height:56px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.site-logo{
+  color:#fff;
+  font-size:13px;
+  font-weight:700;
+  letter-spacing:1.5px;
+}
+.site-tag{
+  color:rgba(255,255,255,0.4);
+  font-size:11.5px;
+  font-weight:500;
+}
+.progress-rail{background:rgba(255,255,255,0.08);height:2px;}
+.progress-bar{background:var(--amber);height:2px;width:0%;transition:width 0.4s ease;}
+
+/* ── Content wrap ────────────────────────────────── */
+.wrap{max-width:672px;margin:0 auto;padding:2rem 1.25rem 4rem;}
+
+/* ── Admin view ──────────────────────────────────── */
+.admin-intro{margin-bottom:2rem;}
+.admin-intro h1{font-size:22px;font-weight:700;color:var(--slate);margin-bottom:6px;}
+.admin-intro p{font-size:14px;color:var(--muted);line-height:1.6;}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:1rem;}
+.panel-body{padding:1.5rem;}
+.panel-footer{padding:0 1.5rem 1.5rem;display:flex;gap:8px;}
+.field{margin-bottom:1.25rem;}
+.field:last-child{margin-bottom:0;}
+.field label{display:block;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:5px;}
+.field .sub{font-size:12.5px;color:var(--muted);margin-bottom:7px;}
+input[type=text],select,textarea{
+  width:100%;padding:9px 12px;
+  border:1px solid var(--border);border-radius:5px;
+  font:14px 'Inter',sans-serif;color:var(--ink);background:var(--surface);
+  transition:border-color .15s,box-shadow .15s;
+}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--slate);box-shadow:0 0 0 3px rgba(30,45,94,0.1);}
+select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236B7385' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;}
+textarea{resize:vertical;min-height:80px;line-height:1.5;}
+.err-msg{font-size:12px;color:var(--err);margin-top:4px;display:none;}
+.err-msg.on{display:block;}
+.inp-err{border-color:var(--err)!important;}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 20px;border-radius:5px;font:600 13.5px 'Inter',sans-serif;cursor:pointer;transition:all .15s;border:none;}
+.btn-primary{background:var(--slate);color:#fff;}
+.btn-primary:hover{background:var(--slate-dk);}
+.btn-ghost{background:transparent;color:var(--slate);border:1px solid var(--border);}
+.btn-ghost:hover{border-color:var(--slate);background:rgba(30,45,94,0.04);}
+.btn-sm{padding:6px 14px;font-size:12.5px;}
+
+/* Link result box */
+.link-box{background:var(--amber-lt);border:1px solid var(--amber-bd);border-radius:6px;padding:1rem 1.25rem;margin-top:1rem;display:none;}
+.link-box-label{font-size:11px;font-weight:700;color:var(--amber);letter-spacing:0.5px;margin-bottom:5px;}
+.link-box-url{font-size:12px;font-family:monospace;color:var(--slate);word-break:break-all;line-height:1.6;margin-bottom:10px;padding:8px 10px;background:#fff8ec;border-radius:4px;border:1px solid var(--amber-bd);}
+.link-actions{display:flex;gap:7px;flex-wrap:wrap;}
+.preview-notice{margin-top:10px;padding-top:10px;border-top:1px solid var(--amber-bd);}
+.preview-notice-label{font-size:11px;font-weight:600;color:var(--amber);margin-bottom:4px;}
+.preview-notice-text{font-size:13px;color:var(--ink);line-height:1.6;font-style:italic;}
+
+/* Recent links */
+.recent-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);gap:12px;}
+.recent-row:last-child{border-bottom:none;}
+.recent-name{font-size:14px;font-weight:500;}
+.recent-role{font-size:12px;color:var(--muted);margin-top:1px;}
+.recent-date{font-size:11px;color:var(--hint);}
+
+/* ── Survey view ─────────────────────────────────── */
+
+/* Hero: who this is for */
+.subject-card{
+  background:var(--slate);
+  border-radius:8px;
+  padding:1.75rem 1.5rem;
+  margin-bottom:1.25rem;
+  color:#fff;
+}
+.subject-card-eyebrow{
+  font-size:11px;font-weight:600;
+  color:rgba(255,255,255,0.5);
+  letter-spacing:0.6px;margin-bottom:8px;
+}
+.subject-card-name{
+  font-size:26px;font-weight:700;
+  letter-spacing:-0.3px;
+  line-height:1.2;margin-bottom:8px;
+}
+.subject-card-desc{
+  font-size:13.5px;
+  color:rgba(255,255,255,0.7);
+  line-height:1.6;
+  max-width:500px;
+}
+.subject-card-desc strong{color:rgba(255,255,255,0.95);}
+
+/* Section treatment: number + title, no bounding box */
+.section-label{
+  display:flex;align-items:baseline;gap:10px;
+  margin-bottom:10px;margin-top:2rem;
+}
+.section-label:first-of-type{margin-top:0;}
+.section-num-badge{
+  font-size:11px;font-weight:700;
+  color:var(--amber);
+  background:var(--amber-lt);
+  border:1px solid var(--amber-bd);
+  border-radius:3px;
+  padding:2px 7px;
+  flex-shrink:0;
+}
+.section-title{font-size:15px;font-weight:600;color:var(--slate);}
+
+/* White question surface */
+.q-surface{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:8px;
+  overflow:hidden;
+}
+.question{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);}
+.question:last-child{border-bottom:none;}
+.q-counter{font-size:11.5px;font-weight:600;color:var(--hint);margin-bottom:3px;}
+.q-text{font-size:15px;font-weight:600;color:var(--ink);margin-bottom:3px;line-height:1.4;}
+.q-hint{font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.5;}
+.q-err{font-size:12px;color:var(--err);margin-top:6px;display:none;}
+.q-err.on{display:block;}
+.req{color:var(--err);margin-left:2px;}
+
+/* Scale legend - inline above all rating questions */
+.scale-guide{
+  font-size:12px;color:var(--muted);
+  padding:0.75rem 1.5rem;
+  border-bottom:1px solid var(--border);
+  background:#FAFBFC;
+  line-height:1.8;
+}
+.scale-guide strong{color:var(--ink);font-weight:600;}
+.scale-note{
+  font-size:12px;color:var(--warn);font-weight:500;
+  margin-top:2px;
+}
+
+/* Rating scale */
+.scale-row{display:flex;align-items:center;gap:6px;margin-bottom:6px;}
+.r-btn{
+  width:46px;height:46px;
+  border:1.5px solid var(--border);border-radius:5px;
+  background:var(--surface);
+  font:700 15px 'Inter',sans-serif;
+  color:var(--muted);
+  cursor:pointer;
+  transition:all .12s;
+  flex-shrink:0;
+}
+.r-btn:hover{border-color:var(--slate);color:var(--slate);background:rgba(30,45,94,0.04);}
+.r-btn.sel{background:var(--slate);border-color:var(--slate);color:#fff;}
+.r-btn.sel-low{background:var(--amber);border-color:var(--amber);color:#fff;}
+.na-pill{
+  margin-left:4px;
+  padding:5px 12px;border:1.5px solid var(--border);border-radius:20px;
+  background:transparent;font:500 12px 'Inter',sans-serif;color:var(--muted);
+  cursor:pointer;transition:all .12s;white-space:nowrap;flex-shrink:0;
+}
+.na-pill:hover{border-color:#888;color:var(--ink);}
+.na-pill.sel{background:var(--na-lt);border-color:#9298A6;color:var(--ink);font-weight:600;}
+.scale-ends{display:flex;justify-content:space-between;font-size:11px;color:var(--hint);padding:0 2px;}
+.r-selected-label{
+  font-size:12.5px;font-weight:600;
+  min-height:18px;margin-top:5px;color:var(--slate);
+}
+.r-selected-label.low{color:var(--amber);}
+
+/* Comment subfield */
+.comment-field{margin-top:10px;}
+.comment-field label{
+  display:block;font-size:12.5px;font-weight:500;
+  color:var(--muted);margin-bottom:5px;
+}
+.comment-field label .c-req{color:var(--warn);font-weight:600;display:none;}
+.comment-field label .c-req.on{display:inline;}
+.comment-field label .c-opt{font-weight:400;}
+.c-textarea{
+  font-size:13px;padding:8px 11px;
+  border:1px solid var(--border);border-radius:5px;
+  width:100%;font-family:'Inter',sans-serif;
+  resize:vertical;min-height:64px;color:var(--ink);
+  background:var(--surface);transition:border-color .15s;
+  line-height:1.5;
+}
+.c-textarea:focus{outline:none;border-color:var(--slate);box-shadow:0 0 0 3px rgba(30,45,94,0.08);}
+.c-textarea.highlight{border-color:var(--amber-bd);background:var(--amber-lt);}
+.c-err{font-size:12px;color:var(--err);margin-top:4px;display:none;}
+.c-err.on{display:block;}
+
+/* Continuation choices */
+.cont-list{display:flex;flex-direction:column;gap:8px;}
+.cont-item{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:12px 14px;
+  border:1.5px solid var(--border);border-radius:6px;
+  cursor:pointer;transition:all .15s;
+}
+.cont-item:hover{border-color:#B0B8CC;background:#FAFBFD;}
+.cont-dot{
+  width:18px;height:18px;min-width:18px;
+  border:2px solid var(--border);border-radius:50%;
+  margin-top:1px;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;
+}
+.cont-dot-inner{width:7px;height:7px;border-radius:50%;background:#fff;display:none;}
+.cont-item.sel-yes{border-color:var(--green-bd);background:var(--green-lt);}
+.cont-item.sel-yes .cont-dot{border-color:var(--green);background:var(--green);}
+.cont-item.sel-partial{border-color:var(--warn-bd);background:var(--warn-lt);}
+.cont-item.sel-partial .cont-dot{border-color:var(--warn);background:var(--warn);}
+.cont-item.sel-notyet{border-color:var(--red-bd);background:var(--red-lt);}
+.cont-item.sel-notyet .cont-dot{border-color:var(--red);background:var(--red);}
+.cont-item.sel-unable{border-color:#9298A6;background:var(--na-lt);}
+.cont-item.sel-unable .cont-dot{border-color:#6B7385;background:#6B7385;}
+.cont-item[class*=sel-] .cont-dot-inner{display:block;}
+.cont-text{line-height:1.4;}
+.cont-main{font-size:14px;font-weight:500;}
+.cont-sub{font-size:12.5px;color:var(--muted);margin-top:2px;display:block;line-height:1.4;}
+.cont-item.sel-yes .cont-main{color:var(--green);}
+.cont-item.sel-partial .cont-main{color:var(--warn);}
+.cont-item.sel-notyet .cont-main{color:var(--red);}
+.cont-item.sel-unable .cont-main{color:#4B5563;}
+.cont-comment-wrap{display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);}
+
+/* Submit */
+.submit-area{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:8px;padding:1.5rem;
+  margin-top:1.25rem;
+}
+.submit-note{font-size:12.5px;color:var(--muted);line-height:1.6;margin-bottom:1rem;}
+.submit-btn{
+  width:100%;padding:13px;
+  background:var(--slate);color:#fff;
+  border:none;border-radius:6px;
+  font:600 15px 'Inter',sans-serif;
+  cursor:pointer;transition:background .15s;letter-spacing:0.1px;
+}
+.submit-btn:hover{background:var(--slate-dk);}
+.submit-btn:disabled{opacity:.6;cursor:not-allowed;}
+.submit-err{
+  display:none;margin-top:10px;padding:10px 12px;
+  background:var(--red-lt);border:1px solid var(--red-bd);
+  border-radius:5px;font-size:13px;color:var(--red);
+}
+.submit-err.on{display:block;}
+
+/* Thank you */
+.ty-wrap{max-width:480px;margin:4rem auto;padding:0 1.25rem;text-align:center;}
+.ty-check{
+  width:56px;height:56px;
+  background:var(--slate);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 1.5rem;
+  font-size:24px;color:#fff;
+}
+.ty-wrap h2{font-size:22px;font-weight:700;color:var(--slate);margin-bottom:10px;}
+.ty-wrap p{font-size:14px;color:var(--muted);line-height:1.7;}
+</style>
+</head>
+<body>
+
+<div class="site-header">
+  <span class="site-logo">UFINITY</span>
+  <span class="site-tag" id="site-tag">Strictly Confidential</span>
+</div>
+<div class="progress-rail"><div class="progress-bar" id="progress"></div></div>
+
+<!-- ═══════════════════════════════════
+     ADMIN VIEW
+═══════════════════════════════════ -->
+<div id="view-admin" style="display:none">
+  <div class="wrap">
+    <div class="admin-intro">
+      <h1>Generate a feedback link</h1>
+      <p>Enter the team member's details. The link you generate will personalise the feedback form with their name throughout.</p>
+    </div>
+    <div class="panel">
+      <div class="panel-body">
+        <div class="field">
+          <label for="a-name">Team member name <span style="color:var(--err)">*</span></label>
+          <div class="sub">Their name will appear in the form heading and throughout each question.</div>
+          <input type="text" id="a-name" placeholder="e.g. Anthony, Wesley, Kelvin Wong" oninput="clearAErr()">
+          <div class="err-msg" id="a-name-err">Please enter the team member's name.</div>
+        </div>
+        <div class="field">
+          <label for="a-role">Role</label>
+          <div class="sub">Shown in the form description to give the client context.</div>
+          <select id="a-role">
+            <option value="">— Select role (optional) —</option>
+            <option>Salesforce Developer</option>
+            <option>Project Manager</option>
+            <option>QA Engineer</option>
+            <option>Quality Engineer</option>
+            <option>Business Analyst</option>
+            <option>UX Designer</option>
+          </select>
+        </div>
+      </div>
+      <div class="panel-footer">
+        <button class="btn btn-primary" onclick="genLink()">Generate link</button>
+      </div>
+      <div class="link-box" id="link-box" style="margin:0 1.5rem 1.5rem;">
+        <div class="link-box-label">Shareable link</div>
+        <div class="link-box-url" id="link-url"></div>
+        <div class="link-actions">
+          <button class="btn btn-primary btn-sm" onclick="copyLink(this)">Copy link</button>
+          <button class="btn btn-ghost btn-sm" onclick="previewLink()">Preview</button>
+        </div>
+        <div class="preview-notice">
+          <div class="preview-notice-label">Form notice preview</div>
+          <div class="preview-notice-text" id="link-preview"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" id="recent-panel" style="display:none">
+      <div class="panel-body" style="padding-bottom:0;">
+        <div style="font-size:13px;font-weight:600;color:var(--slate);margin-bottom:12px;">Recent links</div>
+      </div>
+      <div id="recent-list" style="padding:0 1.5rem;"></div>
+      <div style="height:1px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     SURVEY VIEW
+═══════════════════════════════════ -->
+<div id="view-survey" style="display:none">
+  <div class="wrap">
+
+    <!-- Who is this for -->
+    <div class="subject-card">
+      <div class="subject-card-eyebrow">Performance review feedback requested for</div>
+      <div class="subject-card-name member-name"></div>
+      <div class="subject-card-desc">
+        As part of our standard review process, we would like to gather your feedback on <strong class="member-name"></strong>'s performance. Your input is valued and will be used to support their professional development.
+      </div>
+    </div>
+
+    <!-- Part 1 -->
+    <div class="section-label">
+      <span class="section-num-badge">01</span>
+      <span class="section-title">Your details</span>
+    </div>
+    <div class="q-surface">
+      <div class="question">
+        <div class="q-counter">Question 1</div>
+        <div class="q-text">Your full name <span class="req">*</span></div>
+        <div class="q-hint">Please provide your name so we may follow up if required.</div>
+        <input type="text" id="f-name" placeholder="Enter your full name" oninput="prog()">
+        <div class="q-err" id="err-f-name">This field is required.</div>
+      </div>
+      <div class="question">
+        <div class="q-counter">Question 2</div>
+        <div class="q-text">Your role on the project <span class="req">*</span></div>
+        <div class="q-hint">Please indicate your role so we understand your working relationship with <span class="member-name"></span>.</div>
+        <select id="f-role" onchange="prog()">
+          <option value="">— Select your role —</option>
+          <option>Project Manager</option>
+          <option>QA Engineer</option>
+          <option>Quality Engineer</option>
+          <option>Salesforce Developer</option>
+          <option>Business Analyst</option>
+          <option>Team Lead</option>
+          <option>Others</option>
+        </select>
+        <div class="q-err" id="err-f-role">Please select your role.</div>
+      </div>
+      <div class="question">
+        <div class="q-counter">Question 3</div>
+        <div class="q-text">Project or agency <span class="req">*</span></div>
+        <div class="q-hint">Please indicate the project or agency where you work with <span class="member-name"></span>.</div>
+        <input type="text" id="f-project" placeholder="e.g. Ministry of Social and Family Development" oninput="prog()">
+        <div class="q-err" id="err-f-project">This field is required.</div>
+      </div>
+    </div>
+
+    <!-- Part 2 -->
+    <div class="section-label" style="margin-top:2rem;">
+      <span class="section-num-badge">02</span>
+      <span class="section-title">Performance feedback</span>
+    </div>
+    <div class="q-surface">
+      <div class="scale-guide">
+        <strong>1</strong> Needs Significant Improvement &nbsp;&nbsp;
+        <strong>2</strong> Below Expectations &nbsp;&nbsp;
+        <strong>3</strong> Meets Expectations &nbsp;&nbsp;
+        <strong>4</strong> Very Good &nbsp;&nbsp;
+        <strong>5</strong> Excellent &nbsp;&nbsp;
+        <strong>N/A</strong> Insufficient Exposure
+        <div class="scale-note">Ratings of 1 or 2 require a comment so we can take appropriate action.</div>
+      </div>
+      <div class="question">
+        <div class="q-counter">Question 4</div>
+        <div class="q-text">Role competence <span class="req">*</span></div>
+        <div class="q-hint">How would you rate <span class="member-name"></span>'s craft knowledge and ability to carry out their assigned responsibilities?</div>
+        <div id="sc-q4"></div>
+        <div class="q-err" id="err-q4">Please provide a rating.</div>
+      </div>
+      <div class="question">
+        <div class="q-counter">Question 5</div>
+        <div class="q-text">Quality, professionalism and reliability <span class="req">*</span></div>
+        <div class="q-hint">How would you rate the quality of <span class="member-name"></span>'s work, professionalism and ability to follow through on commitments?</div>
+        <div id="sc-q5"></div>
+        <div class="q-err" id="err-q5">Please provide a rating.</div>
+      </div>
+      <div class="question">
+        <div class="q-counter">Question 6</div>
+        <div class="q-text">Communication and responsiveness <span class="req">*</span></div>
+        <div class="q-hint">How would you rate <span class="member-name"></span>'s clarity of communication, timeliness of updates and responsiveness to queries?</div>
+        <div id="sc-q6"></div>
+        <div class="q-err" id="err-q6">Please provide a rating.</div>
+      </div>
+      <div class="question">
+        <div class="q-counter">Question 7</div>
+        <div class="q-text">Collaboration and teamwork <span class="req">*</span></div>
+        <div class="q-hint">How well does <span class="member-name"></span> collaborate and integrate with your team?</div>
+        <div id="sc-q7"></div>
+        <div class="q-err" id="err-q7">Please provide a rating.</div>
+      </div>
+      <div class="question">
+        <div class="q-counter">Question 8</div>
+        <div class="q-text">Proactiveness in flagging issues or risks <span class="req">*</span></div>
+        <div class="q-hint">How well does <span class="member-name"></span> proactively identify and raise issues, risks or areas needing attention?</div>
+        <div id="sc-q8"></div>
+        <div class="q-err" id="err-q8">Please provide a rating.</div>
+      </div>
+    </div>
+
+    <!-- Part 3 -->
+    <div class="section-label" style="margin-top:2rem;">
+      <span class="section-num-badge">03</span>
+      <span class="section-title">Overall assessment</span>
+    </div>
+    <div class="q-surface">
+      <div class="question">
+        <div class="q-counter">Question 9</div>
+        <div class="q-text">Overall satisfaction with performance <span class="req">*</span></div>
+        <div class="q-hint">Overall, how satisfied are you with <span class="member-name"></span>'s performance and contribution to your project so far?</div>
+        <div id="sc-q9"></div>
+        <div class="q-err" id="err-q9">Please provide a rating.</div>
+      </div>
+      <div class="question">
+        <div class="q-counter">Question 10 — Optional</div>
+        <div class="q-text">Strengths and areas for improvement</div>
+        <div class="q-hint">Please share any specific strengths or areas where you feel <span class="member-name"></span> could develop further.</div>
+        <textarea id="f-open" placeholder="Share any observations on strengths or development areas..." style="margin-top:2px;font-size:13px;width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:5px;font-family:'Inter',sans-serif;resize:vertical;min-height:80px;"></textarea>
+      </div>
+      <div class="question">
+        <div class="q-counter">Question 11</div>
+        <div class="q-text">Continuation on the project <span class="req">*</span></div>
+        <div class="q-hint">Based on your experience, are you comfortable with <span class="member-name"></span> continuing on your project?</div>
+        <div class="cont-list" id="cont-list">
+          <div class="cont-item" data-v="yes" data-cls="sel-yes" onclick="pickCont(this)">
+            <div class="cont-dot"><div class="cont-dot-inner"></div></div>
+            <div class="cont-text">
+              <div class="cont-main">Yes, fully satisfied</div>
+              <span class="cont-sub">Their performance meets expectations and I am happy with their contribution.</span>
+            </div>
+          </div>
+          <div class="cont-item" data-v="partial" data-cls="sel-partial" onclick="pickCont(this)">
+            <div class="cont-dot"><div class="cont-dot-inner"></div></div>
+            <div class="cont-text">
+              <div class="cont-main">Yes, with some improvements needed <span style="font-size:11.5px;font-weight:400;">(comment required)</span></div>
+              <span class="cont-sub">Generally satisfied, but there are specific areas I would like to see improved.</span>
+            </div>
+          </div>
+          <div class="cont-item" data-v="notyet" data-cls="sel-notyet" onclick="pickCont(this)">
+            <div class="cont-dot"><div class="cont-dot-inner"></div></div>
+            <div class="cont-text">
+              <div class="cont-main">Not yet — more time or improvement is needed <span style="font-size:11.5px;font-weight:400;">(comment required)</span></div>
+              <span class="cont-sub">Performance has not yet met my expectations and I would like to discuss this further.</span>
+            </div>
+          </div>
+          <div class="cont-item" data-v="unable" data-cls="sel-unable" onclick="pickCont(this)">
+            <div class="cont-dot"><div class="cont-dot-inner"></div></div>
+            <div class="cont-text">
+              <div class="cont-main">Unable to assess at this stage</div>
+              <span class="cont-sub">I have not had sufficient working exposure to provide a reliable assessment.</span>
+            </div>
+          </div>
+        </div>
+        <div class="q-err" id="err-cont">Please select an option.</div>
+        <div class="cont-comment-wrap" id="cont-cmt-wrap">
+          <div style="font-size:13px;font-weight:600;color:var(--warn);margin-bottom:5px;">Comment required <span style="color:var(--err)">*</span></div>
+          <div style="font-size:12.5px;color:var(--muted);margin-bottom:8px;">Please describe the specific concerns and any recommended areas of focus for <span class="member-name"></span>.</div>
+          <textarea class="c-textarea highlight" id="f-cont-cmt" placeholder="Describe specific concerns or areas for improvement..."></textarea>
+          <div class="c-err" id="err-cont-cmt">Please provide comments for this response.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Submit -->
+    <div class="submit-area">
+      <p class="submit-note">Your responses will be kept strictly confidential and shared only with the relevant Ufinity personnel for staff development and performance review purposes. Thank you for taking the time to complete this form.</p>
+      <button class="submit-btn" id="sub-btn" onclick="doSubmit()">Submit feedback</button>
+      <div class="submit-err" id="sub-err"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     THANK YOU VIEW
+═══════════════════════════════════ -->
+<div id="view-ty" style="display:none">
+  <div class="ty-wrap">
+    <div class="ty-check">&#10003;</div>
+    <h2>Thank you for your feedback</h2>
+    <p>Your feedback on <strong class="member-name"></strong> has been submitted. We appreciate you taking the time to share your experience — your input will help us support <span class="member-name"></span>'s professional development and ensure we continue delivering quality service to your project.</p>
+  </div>
+</div>
+
+<script>
+const FORMSPREE = 'https://formspree.io/f/REPLACE_WITH_YOUR_ID';
+const LABELS = {'1':'Needs Significant Improvement','2':'Below Expectations','3':'Meets Expectations','4':'Very Good','5':'Excellent','na':'Insufficient Exposure'};
+const Q_IDS  = ['q4','q5','q6','q7','q8','q9'];
+const Q_NAMES= {q4:'Role Competence',q5:'Quality, Professionalism & Reliability',q6:'Communication & Responsiveness',q7:'Collaboration & Teamwork',q8:'Proactiveness in Flagging Issues',q9:'Overall Satisfaction'};
+const LS_KEY = 'uf_links_v1';
+let memberName='', ratings={}, cont=null;
+
+/* ── Init ──────────────────────────────────────── */
+function init(){
+  const p=new URLSearchParams(location.search), n=p.get('name');
+  if(n){ memberName=decodeURIComponent(n); showSurvey(); }
+  else { showAdmin(); }
+}
+
+/* ══ ADMIN ═════════════════════════════════════════ */
+function showAdmin(){
+  document.getElementById('site-tag').textContent='Admin Panel';
+  document.getElementById('view-admin').style.display='block';
+  document.getElementById('progress').style.width='100%';
+  loadRecent();
+}
+function clearAErr(){
+  document.getElementById('a-name-err').classList.remove('on');
+  document.getElementById('a-name').classList.remove('inp-err');
+}
+function genLink(){
+  const name=document.getElementById('a-name').value.trim();
+  if(!name){
+    document.getElementById('a-name-err').classList.add('on');
+    document.getElementById('a-name').classList.add('inp-err');
+    return;
+  }
+  const role=document.getElementById('a-role').value;
+  const qs=new URLSearchParams({name});
+  if(role) qs.set('role',role);
+  const url=location.origin+location.pathname+'?'+qs;
+  document.getElementById('link-url').textContent=url;
+  document.getElementById('link-preview').textContent=`"As part of our standard review process, we would like to gather your feedback on ${name}'s performance."`;
+  document.getElementById('link-box').style.display='block';
+  saveRecent(name,role,url);
+}
+function copyLink(btn){
+  navigator.clipboard.writeText(document.getElementById('link-url').textContent).then(()=>{
+    btn.textContent='Copied!';
+    setTimeout(()=>btn.textContent='Copy link',2200);
+  });
+}
+function previewLink(){ window.open(document.getElementById('link-url').textContent,'_blank'); }
+function saveRecent(name,role,url){
+  const arr=JSON.parse(localStorage.getItem(LS_KEY)||'[]').filter(l=>l.name!==name);
+  arr.unshift({name,role,url,date:new Date().toLocaleDateString('en-SG')});
+  localStorage.setItem(LS_KEY,JSON.stringify(arr.slice(0,8)));
+  loadRecent();
+}
+function loadRecent(){
+  const arr=JSON.parse(localStorage.getItem(LS_KEY)||'[]');
+  const panel=document.getElementById('recent-panel');
+  if(!arr.length){panel.style.display='none';return;}
+  panel.style.display='block';
+  document.getElementById('recent-list').innerHTML=arr.map(l=>`
+    <div class="recent-row">
+      <div>
+        <div class="recent-name">${l.name}${l.role?` <span style="font-weight:400;color:var(--muted);font-size:12.5px;">— ${l.role}</span>`:''}</div>
+        <div class="recent-date">Generated ${l.date}</div>
+      </div>
+      <div style="display:flex;gap:6px;">
+        <button class="btn btn-ghost btn-sm" onclick="navigator.clipboard.writeText('${l.url}');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',2200)">Copy</button>
+        <button class="btn btn-ghost btn-sm" onclick="window.open('${l.url}','_blank')">Open</button>
+      </div>
+    </div>`).join('');
+}
+
+/* ══ SURVEY ════════════════════════════════════════ */
+function showSurvey(){
+  document.querySelectorAll('.member-name').forEach(el=>el.textContent=memberName);
+  document.getElementById('view-survey').style.display='block';
+  Q_IDS.forEach(buildScale);
+}
+function buildScale(id){
+  document.getElementById('sc-'+id).innerHTML=`
+    <div class="scale-row">
+      ${[1,2,3,4,5].map(n=>`<button class="r-btn" onclick="setR('${id}',${n})">${n}</button>`).join('')}
+      <button class="na-pill" onclick="setR('${id}','na')">N/A</button>
+    </div>
+    <div class="scale-ends"><span>Needs Significant Improvement</span><span>Excellent</span></div>
+    <div class="r-selected-label" id="lbl-${id}"></div>
+    <div class="comment-field">
+      <label>
+        <span class="c-req" id="creq-${id}">Comment required for this rating</span>
+        <span class="c-opt" id="copt-${id}" style="color:var(--muted)">Additional comments (optional)</span>
+      </label>
+      <textarea class="c-textarea" id="ctxt-${id}" placeholder="Share any context or remarks..."></textarea>
+      <div class="c-err" id="cerr-${id}">Please add a comment for this rating.</div>
+    </div>`;
+}
+function setR(id,val){
+  ratings[id]=val;
+  const isLow=val===1||val===2;
+  document.querySelectorAll(`#sc-${id} .r-btn`).forEach(b=>{
+    b.classList.remove('sel','sel-low');
+    if(+b.textContent===val) b.classList.add(isLow?'sel-low':'sel');
+  });
+  document.querySelector(`#sc-${id} .na-pill`).classList.toggle('sel',val==='na');
+  const lbl=document.getElementById('lbl-'+id);
+  lbl.textContent=LABELS[String(val)];
+  lbl.className='r-selected-label'+(isLow?' low':'');
+  const creq=document.getElementById('creq-'+id);
+  const copt=document.getElementById('copt-'+id);
+  const ctxt=document.getElementById('ctxt-'+id);
+  creq.classList.toggle('on',isLow);
+  copt.style.display=isLow?'none':'inline';
+  ctxt.classList.toggle('highlight',isLow);
+  ctxt.placeholder=isLow?'Please share your comments — required for this rating...':'Share any context or remarks...';
+  if(!isLow) document.getElementById('cerr-'+id).classList.remove('on');
+  document.getElementById('err-'+id).classList.remove('on');
+  prog();
+}
+function pickCont(el){
+  document.getElementById('cont-list').querySelectorAll('.cont-item').forEach(i=>i.className='cont-item');
+  el.classList.add(el.dataset.cls);
+  cont=el.dataset.v;
+  const needCmt=['partial','notyet'].includes(cont);
+  document.getElementById('cont-cmt-wrap').style.display=needCmt?'block':'none';
+  if(!needCmt) document.getElementById('err-cont-cmt').classList.remove('on');
+  document.getElementById('err-cont').classList.remove('on');
+  prog();
+}
+function prog(){
+  const req=['f-name','f-role','f-project',...Q_IDS,'cont'];
+  let done=0;
+  req.forEach(id=>{
+    if(id==='cont'){if(cont)done++;}
+    else if(Q_IDS.includes(id)){if(ratings[id]!=null)done++;}
+    else{if(document.getElementById(id)?.value)done++;}
+  });
+  document.getElementById('progress').style.width=Math.round(done/req.length*100)+'%';
+}
+function validate(){
+  let ok=true;
+  ['f-name','f-role','f-project'].forEach(id=>{
+    const el=document.getElementById(id), err=document.getElementById('err-'+id);
+    if(!el.value){err.classList.add('on');el.classList.add('inp-err');ok=false;}
+    else{err.classList.remove('on');el.classList.remove('inp-err');}
+  });
+  Q_IDS.forEach(id=>{
+    const err=document.getElementById('err-'+id);
+    if(ratings[id]==null){err.classList.add('on');ok=false;}
+    else{
+      err.classList.remove('on');
+      const isLow=ratings[id]===1||ratings[id]===2;
+      const cerr=document.getElementById('cerr-'+id);
+      if(isLow&&!document.getElementById('ctxt-'+id).value.trim()){cerr.classList.add('on');ok=false;}
+      else cerr.classList.remove('on');
+    }
+  });
+  const ce=document.getElementById('err-cont');
+  if(!cont){ce.classList.add('on');ok=false;}
+  else{
+    ce.classList.remove('on');
+    if(['partial','notyet'].includes(cont)){
+      const cc=document.getElementById('err-cont-cmt');
+      if(!document.getElementById('f-cont-cmt').value.trim()){cc.classList.add('on');ok=false;}
+      else cc.classList.remove('on');
+    }
+  }
+  return ok;
+}
+async function doSubmit(){
+  if(!validate()){
+    (document.querySelector('.q-err.on')||document.querySelector('.c-err.on'))?.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+  const btn=document.getElementById('sub-btn');
+  btn.textContent='Submitting...';btn.disabled=true;
+  const payload={'_subject':`Performance Review Feedback — ${memberName}`,'Team Member':memberName,'Respondent Name':document.getElementById('f-name').value,'Respondent Role':document.getElementById('f-role').value,'Project / Agency':document.getElementById('f-project').value};
+  Q_IDS.forEach(id=>{
+    const v=ratings[id];
+    payload[Q_NAMES[id]+' — Rating']=v==='na'?'N/A — Insufficient Exposure':`${v} — ${LABELS[String(v)]}`;
+    const cmt=document.getElementById('ctxt-'+id).value.trim();
+    if(cmt) payload[Q_NAMES[id]+' — Comment']=cmt;
+  });
+  payload['Strengths & Development Areas']=document.getElementById('f-open').value||'(Not provided)';
+  payload['Continuation']={'yes':'Yes, fully satisfied','partial':'Yes, with some improvements needed','notyet':'Not yet — more time or improvement needed','unable':'Unable to assess'}[cont];
+  const cc=document.getElementById('f-cont-cmt').value.trim();
+  if(cc) payload['Continuation — Comment']=cc;
+  payload['Submitted At']=new Date().toISOString();
+  try{
+    const r=await fetch(FORMSPREE,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(payload)});
+    if(r.ok){
+      document.getElementById('view-survey').style.display='none';
+      document.getElementById('view-ty').style.display='block';
+      document.getElementById('progress').style.width='100%';
+      window.scrollTo({top:0,behavior:'smooth'});
+    } else {
+      const se=document.getElementById('sub-err');
+      se.textContent='Submission failed. Please try again or contact Ufinity directly.';
+      se.classList.add('on');btn.textContent='Submit feedback';btn.disabled=false;
+    }
+  } catch(e){
+    const se=document.getElementById('sub-err');
+    se.textContent='A network error occurred. Please check your connection and try again.';
+    se.classList.add('on');btn.textContent='Submit feedback';btn.disabled=false;
+  }
+}
+init();
+</script>
+</body>
+</html>
