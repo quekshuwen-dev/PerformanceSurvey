@@ -213,7 +213,7 @@ textarea{resize:vertical;line-height:1.55;min-height:76px;font-size:13.5px}
       <div class="grid2">
         <div style="grid-column:1/-1">
           <label class="f-lbl">Team member name <span class="star">*</span></label>
-          <input type="text" id="a-nm" placeholder="e.g. John Tan" oninput="aclr()">
+          <input type="text" id="a-nm" placeholder="e.g. John Tan" oninput="capName(this);aclr()">
           <div class="e" id="a-nm-e">Please enter a name.</div>
         </div>
         <div>
@@ -423,6 +423,11 @@ function openAdmin(){
   loadH();
 }
 function aclr(){document.getElementById('a-nm-e').classList.remove('on');document.getElementById('a-nm').classList.remove('bad')}
+function capName(el){
+  const s=el.selectionStart,v=el.value;
+  el.value=v.replace(/\b\w/g,c=>c.toUpperCase());
+  el.setSelectionRange(s,s);
+}
 
 function mk(){
   const n=document.getElementById('a-nm').value.trim();
@@ -465,7 +470,7 @@ function loadH(){
   const a=JSON.parse(localStorage.getItem(KEY)||'[]'),h=document.getElementById('hist');
   if(!a.length){h.style.display='none';return}
   h.style.display='block';
-  document.getElementById('hl').innerHTML=a.map(x=>`<div class="hrow"><div><div class="hrow-n">${esc(x.n)}</div><div class="hrow-m">${x.p?esc(x.p)+' · ':''}Created ${x.d}</div></div><div class="hrow-b"><button class="btn btn-o btn-s" onclick="navigator.clipboard.writeText('${x.u}');this.textContent='Copied';setTimeout(()=>this.textContent='Copy',2200)">Copy</button><button class="btn btn-o btn-s" onclick="window.open('${x.u}','_blank')">Open</button></div></div>`).join('');
+  document.getElementById('hl').innerHTML=a.map((x,i)=>`<div class="hrow"><div><div class="hrow-n">${esc(x.n)}</div><div class="hrow-m">${x.p?esc(x.p)+' · ':''}Created ${x.d}</div></div><div class="hrow-b"><button class="btn btn-o btn-s" onclick="openEdit(${i})">Edit</button><button class="btn btn-o btn-s" onclick="navigator.clipboard.writeText('${x.u}');this.textContent='Copied';setTimeout(()=>this.textContent='Copy',2200)">Copy</button><button class="btn btn-o btn-s" onclick="window.open('${x.u}','_blank')">Open</button></div></div>`).join('');
 }
 
 /* ═══ FORM ═══ */
@@ -597,6 +602,51 @@ function fail(b,m){
   e.scrollIntoView({behavior:'smooth',block:'center'});
 }
 init();
+
+let editIdx=-1;
+function openEdit(i){
+  const a=JSON.parse(localStorage.getItem(KEY)||'[]');
+  editIdx=i;
+  document.getElementById('edit-who').textContent=a[i].n;
+  document.getElementById('edit-rp').value=a[i].p||'';
+  const m=document.getElementById('edit-modal');
+  m.style.display='flex';
+  setTimeout(()=>document.getElementById('edit-rp').focus(),50);
+}
+function closeEdit(){document.getElementById('edit-modal').style.display='none';editIdx=-1;}
+function saveEdit(){
+  if(editIdx<0)return;
+  const a=JSON.parse(localStorage.getItem(KEY)||'[]');
+  const per=document.getElementById('edit-rp').value.trim();
+  const n=a[editIdx].n;
+  const q=new URLSearchParams({name:n});if(per)q.set('p',per);
+  const u=location.origin+location.pathname+'?'+q;
+  a[editIdx].p=per;a[editIdx].u=u;a[editIdx].d=new Date().toLocaleDateString('en-SG',{day:'numeric',month:'short',year:'numeric'});
+  localStorage.setItem(KEY,JSON.stringify(a));
+  closeEdit();loadH();
+  document.getElementById('ou').textContent=u;
+  document.getElementById('out').style.display='block';
+  document.getElementById('shorten-row').style.display='flex';
+  document.getElementById('short-url').textContent='';
+  document.getElementById('short-copy').style.display='none';
+  document.getElementById('op').textContent=`"We would appreciate your feedback on ${n}'s performance and contribution to the project."`;
+}
+document.getElementById('edit-modal').addEventListener('click',function(e){if(e.target===this)closeEdit();});
+
 </script>
+
+<!-- Edit modal -->
+<div id="edit-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;align-items:center;justify-content:center;padding:1rem">
+  <div style="background:#fff;border-radius:14px;padding:clamp(1.25rem,4vw,2rem);max-width:440px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.18)">
+    <div style="font-size:16px;font-weight:700;color:var(--navy);margin-bottom:4px">Edit review period</div>
+    <div style="font-size:13.5px;color:var(--g1);margin-bottom:1.25rem">Updating the period generates a new link for <strong id="edit-who"></strong>.</div>
+    <label class="f-lbl">Review period</label>
+    <input type="text" id="edit-rp" placeholder="e.g. Aug 2026 or Jul – Aug 2026" style="margin-bottom:1.25rem">
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button class="btn btn-o btn-s" onclick="closeEdit()">Cancel</button>
+      <button class="btn btn-p btn-s" onclick="saveEdit()">Update link</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
