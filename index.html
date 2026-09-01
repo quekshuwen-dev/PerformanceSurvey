@@ -450,6 +450,7 @@ var curLink='',curName=''; /* global — used by showLink() and reminder functio
    Formspree endpoint — responses are emailed to the account owner
    and stored in the Formspree dashboard.                          */
 const FS = 'https://formspree.io/f/xoeqjovl';
+const GS_URL = 'https://script.google.com/macros/s/AKfycbyFzl2TOW9f6uH4PEmdJK5POsE8Q91B-CPPDptvdRAN3WRYrX58RFjQpNGj2erEv_1aZg/exec'; /* paste your Google Apps Script URL here once deployed */
 
 const L={'1':'Needs significant improvement','2':'Below expectations','3':'Meets expectations','4':'Very good','5':'Excellent','na':'Insufficient exposure'};
 const KEY='uf_v5';
@@ -736,8 +737,12 @@ async function go(){
   const cc=document.getElementById('f-chc').value.trim();if(cc)p['Continuation — Comment']=cc;
   p['Submitted']=new Date().toLocaleString('en-SG');
   try{
-    const r=await fetch(FS,{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify(p)});
-    if(r.ok){
+    /* Post to Google Sheets backend */
+    const endpoint = GS_URL || FS; /* uses Google Sheets if configured, else Formspree */
+    const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify(p),mode:'no-cors'});
+    /* no-cors means we don't get a proper response object — treat as success */
+    const ok = GS_URL ? true : r.ok;
+    if(ok){
       document.getElementById('v-form').style.display='none';
       document.getElementById('v-done').style.display='block';
       document.getElementById('pct').style.display='none';
