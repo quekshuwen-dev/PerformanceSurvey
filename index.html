@@ -445,6 +445,7 @@ textarea{resize:vertical;line-height:1.55;min-height:76px;font-size:13.5px}
 </div>
 
 <script>
+var curLink='',curName=''; /* global — used by showLink() and reminder functions */
 /* ═══ CONFIGURATION ═══
    Formspree endpoint — responses are emailed to the account owner
    and stored in the Formspree dashboard.                          */
@@ -806,11 +807,10 @@ function delEntry(){
   localStorage.setItem(KEY,JSON.stringify(a));
   closeEdit();loadH();
 }
-document.getElementById('edit-modal').addEventListener('click',function(e){if(e.target===this)closeEdit();});
+const _em=document.getElementById('edit-modal');if(_em)_em.addEventListener('click',function(e){if(e.target===this)closeEdit();});
 
 
 /* ═══ REMINDER ENGINE ═══ */
-let curLink='',curName='';
 
 /* Seed email from localStorage */
 (function(){
@@ -820,10 +820,11 @@ let curLink='',curName='';
 
 /* Check for due reminders on admin load */
 function checkReminders(){
+  if(!document.getElementById('rbanner'))return;
   const a=JSON.parse(localStorage.getItem(KEY)||'[]');
   const today=new Date().toISOString().slice(0,10);
   const due=a.filter(x=>x.remind&&x.remind<=today);
-  const banner=document.getElementById('rbanner');
+  const banner=document.getElementById('rbanner');if(!banner)return;
   if(!due.length){banner.classList.remove('on');return;}
   banner.classList.add('on');
   document.getElementById('rb-items').innerHTML=due.map((x,i)=>`
